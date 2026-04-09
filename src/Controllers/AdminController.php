@@ -11,7 +11,7 @@ class AdminController
     private function requireAuth(): void
     {
         if (empty($_SESSION['admin_logged_in'])) {
-            header('Location: ' . APP_URL . '/public/?page=admin&action=login');
+            header('Location: ' . APP_URL . '/?page=admin&action=login');
             exit;
         }
     }
@@ -19,7 +19,7 @@ class AdminController
     public function login(): void
     {
         if (!empty($_SESSION['admin_logged_in'])) {
-            header('Location: ' . APP_URL . '/public/?page=admin');
+            header('Location: ' . APP_URL . '/?page=admin');
             exit;
         }
 
@@ -37,7 +37,7 @@ class AdminController
                     session_regenerate_id(true);
                     $_SESSION['admin_logged_in'] = true;
                     $_SESSION['admin_username']  = $username;
-                    header('Location: ' . APP_URL . '/public/?page=admin');
+                    header('Location: ' . APP_URL . '/?page=admin');
                     exit;
                 }
                 $error = 'Invalid username or password.';
@@ -53,7 +53,7 @@ class AdminController
     public function logout(): void
     {
         session_destroy();
-        header('Location: ' . APP_URL . '/public/?page=admin&action=login');
+        header('Location: ' . APP_URL . '/?page=admin&action=login');
         exit;
     }
 
@@ -72,13 +72,13 @@ class AdminController
         $this->requireAuth();
         $id = (int) ($_GET['id'] ?? 0);
         if ($id <= 0) {
-            header('Location: ' . APP_URL . '/public/?page=admin');
+            header('Location: ' . APP_URL . '/?page=admin');
             exit;
         }
         $orderModel = new Order();
         $order      = $orderModel->getOrderById($id);
         if (!$order) {
-            header('Location: ' . APP_URL . '/public/?page=admin');
+            header('Location: ' . APP_URL . '/?page=admin');
             exit;
         }
         csrfGenerate();
@@ -91,7 +91,7 @@ class AdminController
     {
         $this->requireAuth();
         if (!csrfVerify($_POST['csrf_token'] ?? '')) {
-            header('Location: ' . APP_URL . '/public/?page=admin');
+            header('Location: ' . APP_URL . '/?page=admin');
             exit;
         }
         $id     = (int) ($_POST['order_id'] ?? 0);
@@ -100,7 +100,7 @@ class AdminController
             $orderModel = new Order();
             $orderModel->updateOrderStatus($id, $status);
         }
-        header('Location: ' . APP_URL . '/public/?page=admin&action=order&id=' . $id);
+        header('Location: ' . APP_URL . '/?page=admin&action=order&id=' . $id);
         exit;
     }
 }

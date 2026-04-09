@@ -1,5 +1,5 @@
 <?php
-$appUrl   = APP_URL . '/public';
+$appUrl   = APP_URL;
 $adminUser = htmlspecialchars($_SESSION['admin_username'] ?? 'Admin', ENT_QUOTES, 'UTF-8');
 $statusColors = [
     'pending'    => 'bg-yellow-100 text-yellow-800',

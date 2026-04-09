@@ -1,4 +1,4 @@
-<?php $appUrl = APP_URL . '/public'; ?>
+<?php $appUrl = APP_URL; ?>
 <section class="py-24">
   <div class="max-w-md mx-auto px-4 text-center">
     <div class="w-24 h-24 mx-auto mb-6 rounded-full bg-green-100 flex items-center justify-center">

@@ -18,7 +18,7 @@
   </div>
 </footer>
 
-<script src="<?php echo htmlspecialchars(APP_URL . '/public/assets/js/app.js', ENT_QUOTES, 'UTF-8'); ?>"></script>
+<script src="<?php echo htmlspecialchars(APP_URL . '/assets/js/app.js', ENT_QUOTES, 'UTF-8'); ?>"></script>
 <script>
   // Mobile menu toggle
   const btn  = document.getElementById('mobile-menu-btn');

@@ -1,5 +1,5 @@
 <?php
-$appUrl = APP_URL . '/public';
+$appUrl = APP_URL;
 $sizes  = PRINT_SIZES;
 ?>
 <!-- Hero -->
