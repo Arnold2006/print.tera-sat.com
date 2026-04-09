@@ -1,6 +1,6 @@
 <?php
 $currentPage = $_GET['page'] ?? 'home';
-$appUrl = APP_URL . '/public';
+$appUrl = APP_URL;
 ?>
 <!DOCTYPE html>
 <html lang="en" class="h-full">
