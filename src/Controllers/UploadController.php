@@ -99,9 +99,14 @@ class UploadController
                 return;
             }
 
-            // Store in session
-            $_SESSION['upload_filename']          = $newName;
-            $_SESSION['upload_original_filename'] = htmlspecialchars($file['name'], ENT_QUOTES, 'UTF-8');
+            // Append to the multi-file upload list in session
+            if (!isset($_SESSION['upload_files']) || !is_array($_SESSION['upload_files'])) {
+                $_SESSION['upload_files'] = [];
+            }
+            $_SESSION['upload_files'][] = [
+                'filename'          => $newName,
+                'original_filename' => htmlspecialchars($file['name'], ENT_QUOTES, 'UTF-8'),
+            ];
 
             ob_end_clean();
             echo json_encode([

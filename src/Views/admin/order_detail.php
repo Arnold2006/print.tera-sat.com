@@ -34,9 +34,16 @@ $previewUrl = $appUrl . '/?page=image&file=' . urlencode($order['filename']) . '
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 text-center">
           <img src="<?php echo htmlspecialchars($previewUrl, ENT_QUOTES, 'UTF-8'); ?>"
                alt="Order image" class="max-w-full max-h-64 mx-auto rounded-xl object-contain mb-4 shadow-md">
-          <p class="text-xs text-gray-400 truncate">
+          <p class="text-xs text-gray-400 truncate mb-4">
             <?php echo htmlspecialchars($order['original_filename'], ENT_QUOTES, 'UTF-8'); ?>
           </p>
+          <a href="<?php echo htmlspecialchars($appUrl . '/?page=admin&action=download_image&id=' . (int)$order['id'], ENT_QUOTES, 'UTF-8'); ?>"
+             class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-4 py-2 rounded-xl transition shadow-sm hover:shadow-md">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+            </svg>
+            Download Image
+          </a>
         </div>
       </div>
 

@@ -2,11 +2,8 @@
 $appUrl    = APP_URL;
 $csrfToken = $_SESSION['csrf_token'] ?? '';
 $data      = $_SESSION['order_data'];
-$filename  = $_SESSION['upload_filename'];
-$origName  = $_SESSION['upload_original_filename'] ?? $filename;
+$items     = $data['items'];
 $sizes     = PRINT_SIZES;
-$sizeLabel = $sizes[$data['size']]['label'] ?? $data['size'];
-$previewUrl = $appUrl . '/?page=image&file=' . urlencode($filename);
 ?>
 <section class="py-16">
   <div class="max-w-2xl mx-auto px-4 sm:px-6">
@@ -28,36 +25,51 @@ $previewUrl = $appUrl . '/?page=image&file=' . urlencode($filename);
     </div>
 
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-      <h1 class="text-2xl font-bold text-gray-900 mb-8">Order Summary</h1>
+      <h1 class="text-2xl font-bold text-gray-900 mb-6">Order Summary</h1>
 
-      <div class="flex flex-col sm:flex-row gap-6 mb-8">
-        <img src="<?php echo htmlspecialchars($previewUrl, ENT_QUOTES, 'UTF-8'); ?>"
-             alt="Your photo" class="w-full sm:w-40 h-40 object-cover rounded-xl shadow-md flex-shrink-0">
-        <div class="flex-1">
-          <h3 class="font-semibold text-gray-700 mb-1 text-sm">Image</h3>
-          <p class="text-gray-900 mb-4 truncate"><?php echo htmlspecialchars($origName, ENT_QUOTES, 'UTF-8'); ?></p>
-
-          <div class="grid grid-cols-2 gap-3 text-sm">
-            <div>
-              <span class="text-gray-500">Print Size</span>
-              <p class="font-semibold text-gray-900"><?php echo htmlspecialchars($sizeLabel, ENT_QUOTES, 'UTF-8'); ?></p>
-            </div>
-            <div>
-              <span class="text-gray-500">Quantity</span>
-              <p class="font-semibold text-gray-900"><?php echo (int)$data['quantity']; ?> pcs</p>
-            </div>
-            <div>
-              <span class="text-gray-500">Price / unit</span>
-              <p class="font-semibold text-gray-900">&euro;<?php echo number_format($data['price_per_unit'], 2); ?></p>
-            </div>
-            <div>
-              <span class="text-gray-500">Total</span>
-              <p class="text-2xl font-extrabold text-indigo-600">&euro;<?php echo number_format($data['total_price'], 2); ?></p>
+      <!-- Per-image line items -->
+      <div class="space-y-4 mb-6">
+        <?php foreach ($items as $item):
+          $sizeLabel  = $sizes[$item['size']]['label'] ?? $item['size'];
+          $previewUrl = $appUrl . '/?page=image&file=' . urlencode($item['filename']) . '&dir=permanent';
+        ?>
+        <div class="flex gap-4 p-4 bg-gray-50 rounded-xl">
+          <img src="<?php echo htmlspecialchars($previewUrl, ENT_QUOTES, 'UTF-8'); ?>"
+               alt="<?php echo htmlspecialchars($item['original_filename'], ENT_QUOTES, 'UTF-8'); ?>"
+               class="w-20 h-20 object-cover rounded-lg shadow-sm flex-shrink-0">
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-semibold text-gray-800 truncate mb-2">
+              <?php echo htmlspecialchars($item['original_filename'], ENT_QUOTES, 'UTF-8'); ?>
+            </p>
+            <div class="grid grid-cols-3 gap-2 text-sm">
+              <div>
+                <span class="text-gray-500 text-xs">Size</span>
+                <p class="font-semibold text-gray-900"><?php echo htmlspecialchars($sizeLabel, ENT_QUOTES, 'UTF-8'); ?></p>
+              </div>
+              <div>
+                <span class="text-gray-500 text-xs">Qty</span>
+                <p class="font-semibold text-gray-900"><?php echo (int)$item['quantity']; ?> pcs</p>
+              </div>
+              <div class="text-right">
+                <span class="text-gray-500 text-xs">Total</span>
+                <p class="font-extrabold text-indigo-600">&euro;<?php echo number_format($item['total_price'], 2); ?></p>
+              </div>
             </div>
           </div>
         </div>
+        <?php endforeach; ?>
       </div>
 
+      <!-- Grand total -->
+      <div class="flex items-center justify-between p-4 bg-indigo-50 rounded-xl mb-6">
+        <span class="font-semibold text-gray-700">
+          Grand Total
+          <span class="text-xs font-normal text-gray-500 ml-1">(<?php echo count($items); ?> photo<?php echo count($items) !== 1 ? 's' : ''; ?>)</span>
+        </span>
+        <span class="text-2xl font-extrabold text-indigo-600">&euro;<?php echo number_format($data['grand_total'], 2); ?></span>
+      </div>
+
+      <!-- Delivery details -->
       <div class="border-t border-gray-100 pt-6 mb-8">
         <h3 class="font-semibold text-gray-700 mb-4">Delivery Details</h3>
         <dl class="grid grid-cols-1 gap-2 text-sm">
@@ -79,7 +91,7 @@ $previewUrl = $appUrl . '/?page=image&file=' . urlencode($filename);
       <div class="flex flex-col sm:flex-row gap-3">
         <a href="<?php echo htmlspecialchars($appUrl . '/?page=order', ENT_QUOTES, 'UTF-8'); ?>"
            class="flex-1 text-center py-3 px-6 border border-gray-300 rounded-xl text-gray-700 font-semibold hover:bg-gray-50 transition">
-          &larr; Edit Order
+          &larr; Edit Options
         </a>
         <form method="POST" action="<?php echo htmlspecialchars($appUrl . '/?page=order&action=place', ENT_QUOTES, 'UTF-8'); ?>" class="flex-1">
           <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">

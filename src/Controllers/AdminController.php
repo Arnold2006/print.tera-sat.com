@@ -103,4 +103,55 @@ class AdminController
         header('Location: ' . APP_URL . '/?page=admin&action=order&id=' . $id);
         exit;
     }
+
+    public function downloadImage(): void
+    {
+        $this->requireAuth();
+        $id = (int) ($_GET['id'] ?? 0);
+        if ($id <= 0) {
+            header('Location: ' . APP_URL . '/?page=admin');
+            exit;
+        }
+        $orderModel = new Order();
+        $order      = $orderModel->getOrderById($id);
+        if (!$order) {
+            header('Location: ' . APP_URL . '/?page=admin');
+            exit;
+        }
+
+        $filename = $order['filename'];
+        if (!preg_match('/^[a-f0-9]{32}\.(jpg|jpeg|png|webp)$/i', $filename)) {
+            http_response_code(400);
+            echo 'Invalid file.';
+            exit;
+        }
+
+        if (file_exists(PERMANENT_PATH . $filename)) {
+            $filePath = PERMANENT_PATH . $filename;
+        } elseif (file_exists(UPLOADS_PATH . $filename)) {
+            $filePath = UPLOADS_PATH . $filename;
+        } else {
+            http_response_code(404);
+            echo 'File not found.';
+            exit;
+        }
+
+        $finfo = new \finfo(FILEINFO_MIME_TYPE);
+        $mime  = $finfo->file($filePath);
+        if (!in_array($mime, ALLOWED_MIME_TYPES, true)) {
+            http_response_code(403);
+            echo 'Forbidden.';
+            exit;
+        }
+
+        $downloadName = $order['original_filename'] !== '' ? $order['original_filename'] : $filename;
+        $downloadName = preg_replace('/[^\w.\- ]/', '_', $downloadName);
+
+        header('Content-Type: ' . $mime);
+        header('Content-Length: ' . filesize($filePath));
+        header('Content-Disposition: attachment; filename="' . $downloadName . '"');
+        header('Cache-Control: private, no-cache');
+        readfile($filePath);
+        exit;
+    }
 }
