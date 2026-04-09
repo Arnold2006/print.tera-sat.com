@@ -1,0 +1,7 @@
+.env
+storage/uploads/*
+storage/permanent/*
+!storage/uploads/.gitkeep
+!storage/permanent/.gitkeep
+vendor/
+*.log
