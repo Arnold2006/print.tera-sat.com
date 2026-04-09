@@ -17,6 +17,36 @@ A production-ready PHP web application for an online image printing service. Cus
 - MySQL 5.7+ / MariaDB 10.3+
 - Apache with `mod_rewrite` enabled
 
+### Required PHP Extensions
+
+| Extension | Purpose | Debian/Ubuntu | RHEL/AlmaLinux |
+|-----------|---------|---------------|----------------|
+| `fileinfo` | MIME-type validation for uploaded images | `apt install php-fileinfo` | `dnf install php-fileinfo` |
+| `pdo_mysql` | MySQL/MariaDB database access | `apt install php-mysql` | `dnf install php-mysqlnd` |
+| `session` | User/admin session management | bundled with PHP | bundled with PHP |
+| `json` | Upload AJAX responses | bundled with PHP | bundled with PHP |
+
+> **Note:** `session` and `json` are compiled into PHP by default. Only `fileinfo` and `pdo_mysql` typically require a separate package install.
+
+After installing extensions, reload your web server:
+```bash
+# Apache + PHP-FPM
+systemctl restart php8.x-fpm && systemctl reload apache2
+# Apache mod_php
+systemctl reload apache2
+```
+
+### PHP ini Settings
+
+The app allows uploads up to **10 MB**. Ensure your `php.ini` (or PHP-FPM pool `.conf`) has at least:
+
+```ini
+upload_max_filesize = 10M
+post_max_size       = 12M
+```
+
+Default values (`upload_max_filesize = 2M`) will silently reject larger files before the application code even runs.
+
 ## Quick Start
 
 ### 1. Clone & Configure
