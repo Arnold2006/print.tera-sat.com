@@ -129,8 +129,8 @@ class OrderController
             }
         }
 
-        $model        = new Order();
-        $orderNumbers = [];
+        $model            = new Order();
+        $groupOrderNumber = $model->generateGroupOrderNumber();
 
         foreach ($items as $item) {
             $src  = UPLOADS_PATH  . $item['filename'];
@@ -142,33 +142,34 @@ class OrderController
                 exit;
             }
 
-            $orderNumbers[] = $model->createOrder([
-                'filename'          => $item['filename'],
-                'original_filename' => $item['original_filename'],
-                'size'              => $item['size'],
-                'quantity'          => $item['quantity'],
-                'price'             => $item['total_price'],
-                'customer_name'     => $orderData['customer_name'],
-                'customer_email'    => $orderData['customer_email'],
-                'customer_address'  => $orderData['customer_address'],
+            $model->createOrder([
+                'group_order_number' => $groupOrderNumber,
+                'filename'           => $item['filename'],
+                'original_filename'  => $item['original_filename'],
+                'size'               => $item['size'],
+                'quantity'           => $item['quantity'],
+                'price'              => $item['total_price'],
+                'customer_name'      => $orderData['customer_name'],
+                'customer_email'     => $orderData['customer_email'],
+                'customer_address'   => $orderData['customer_address'],
             ]);
         }
 
         unset($_SESSION['upload_files'], $_SESSION['order_data'], $_SESSION['order_error']);
 
-        $_SESSION['success_order_numbers'] = $orderNumbers;
+        $_SESSION['success_order_number'] = $groupOrderNumber;
         header('Location: ' . APP_URL . '/?page=order&action=success');
         exit;
     }
 
     public function success(): void
     {
-        if (empty($_SESSION['success_order_numbers'])) {
+        if (empty($_SESSION['success_order_number'])) {
             header('Location: ' . APP_URL . '/');
             exit;
         }
-        $orderNumbers = $_SESSION['success_order_numbers'];
-        unset($_SESSION['success_order_numbers']);
+        $orderNumber = $_SESSION['success_order_number'];
+        unset($_SESSION['success_order_number']);
         require_once __DIR__ . '/../Views/layout/header.php';
         require_once __DIR__ . '/../Views/order/success.php';
         require_once __DIR__ . '/../Views/layout/footer.php';

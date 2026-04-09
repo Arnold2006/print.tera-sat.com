@@ -31,7 +31,7 @@ $sizes     = PRINT_SIZES;
       <div class="space-y-4 mb-6">
         <?php foreach ($items as $item):
           $sizeLabel  = $sizes[$item['size']]['label'] ?? $item['size'];
-          $previewUrl = $appUrl . '/?page=image&file=' . urlencode($item['filename']) . '&dir=permanent';
+          $previewUrl = $appUrl . '/?page=image&file=' . urlencode($item['filename']) . '&dir=uploads';
         ?>
         <div class="flex gap-4 p-4 bg-gray-50 rounded-xl">
           <img src="<?php echo htmlspecialchars($previewUrl, ENT_QUOTES, 'UTF-8'); ?>"
