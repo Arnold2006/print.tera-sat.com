@@ -15,7 +15,9 @@ if (file_exists($envFile)) {
             $value = trim($parts[1]);
             if (!array_key_exists($key, $_ENV)) {
                 $_ENV[$key] = $value;
-                putenv("{$key}={$value}");
+                if (function_exists('putenv')) {
+                    putenv("{$key}={$value}");
+                }
             }
         }
     }
