@@ -22,6 +22,8 @@ declare(strict_types=1);
 require_once __DIR__ . '/config/config.php';
 require_once __DIR__ . '/config/database.php';
 
+use src\Models\Database;
+
 $pdo = Database::getInstance();
 
 // ---------------------------------------------------------------------------
