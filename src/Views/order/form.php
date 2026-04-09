@@ -115,7 +115,10 @@ $sizes = PRINT_SIZES;
 
     <!-- Price config for JS -->
     <script>
-      window.PRINT_SIZES = <?php echo json_encode(array_map(fn($v) => $v['price'], PRINT_SIZES)); ?>;
+      window.PRINT_SIZES = <?php echo json_encode(
+          array_map(fn($v) => $v['price'], PRINT_SIZES),
+          JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR
+      ); ?>;
     </script>
   </div>
 </section>

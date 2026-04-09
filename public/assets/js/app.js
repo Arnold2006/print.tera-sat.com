@@ -103,7 +103,7 @@ function uploadFile() {
   formData.append('csrf_token', csrfToken);
 
   uploadBtn.disabled = true;
-  uploadBtn.textContent = 'Uploading\u2026';
+  uploadBtn.textContent = 'Uploading...';
   if (progressContainer) progressContainer.classList.remove('hidden');
 
   const xhr = new XMLHttpRequest();
