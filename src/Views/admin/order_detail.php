@@ -1,5 +1,5 @@
 <?php
-$appUrl    = APP_URL . '/public';
+$appUrl    = APP_URL;
 $csrfToken = $_SESSION['csrf_token'] ?? '';
 $sizes     = PRINT_SIZES;
 $sizeLabel = $sizes[$order['size']]['label'] ?? $order['size'];

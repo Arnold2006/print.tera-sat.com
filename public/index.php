@@ -131,7 +131,7 @@ switch ($page) {
     default:
         http_response_code(404);
         require_once BASE_PATH . '/src/Views/layout/header.php';
-        echo '<div class="max-w-xl mx-auto px-4 py-24 text-center"><h1 class="text-4xl font-bold text-gray-900 mb-4">404</h1><p class="text-gray-500 mb-8">Page not found.</p><a href="' . htmlspecialchars(APP_URL . '/public/', ENT_QUOTES, 'UTF-8') . '" class="text-indigo-600 hover:underline">Go Home</a></div>';
+        echo '<div class="max-w-xl mx-auto px-4 py-24 text-center"><h1 class="text-4xl font-bold text-gray-900 mb-4">404</h1><p class="text-gray-500 mb-8">Page not found.</p><a href="' . htmlspecialchars(APP_URL . '/', ENT_QUOTES, 'UTF-8') . '" class="text-indigo-600 hover:underline">Go Home</a></div>';
         require_once BASE_PATH . '/src/Views/layout/footer.php';
         break;
 }

@@ -1,5 +1,5 @@
 <?php
-$appUrl    = APP_URL . '/public';
+$appUrl    = APP_URL;
 $csrfToken = $_SESSION['csrf_token'] ?? '';
 $filename  = $_SESSION['upload_filename'] ?? '';
 $error     = $_SESSION['order_error'] ?? null;

@@ -1,6 +1,6 @@
 <?php
 $csrfToken = $_SESSION['csrf_token'] ?? '';
-$appUrl    = APP_URL . '/public';
+$appUrl    = APP_URL;
 ?>
 <section class="min-h-[70vh] flex items-center justify-center py-16 px-4">
   <div class="w-full max-w-md">

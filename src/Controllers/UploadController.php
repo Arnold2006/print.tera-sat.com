@@ -75,8 +75,8 @@ class UploadController
         echo json_encode([
             'success'      => true,
             'filename'     => $newName,
-            'preview_url'  => APP_URL . '/public/?page=image&file=' . urlencode($newName),
-            'redirect_url' => APP_URL . '/public/?page=order',
+            'preview_url'  => APP_URL . '/?page=image&file=' . urlencode($newName),
+            'redirect_url' => APP_URL . '/?page=order',
         ]);
     }
 

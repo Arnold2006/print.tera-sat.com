@@ -10,7 +10,7 @@ class OrderController
     public function form(): void
     {
         if (empty($_SESSION['upload_filename'])) {
-            header('Location: ' . APP_URL . '/public/?page=upload');
+            header('Location: ' . APP_URL . '/?page=upload');
             exit;
         }
         csrfGenerate();
@@ -22,13 +22,13 @@ class OrderController
     public function summary(): void
     {
         if (empty($_SESSION['upload_filename'])) {
-            header('Location: ' . APP_URL . '/public/?page=upload');
+            header('Location: ' . APP_URL . '/?page=upload');
             exit;
         }
 
         if (!csrfVerify($_POST['csrf_token'] ?? '')) {
             $_SESSION['order_error'] = 'Invalid security token.';
-            header('Location: ' . APP_URL . '/public/?page=order');
+            header('Location: ' . APP_URL . '/?page=order');
             exit;
         }
 
@@ -48,7 +48,7 @@ class OrderController
 
         if ($errors) {
             $_SESSION['order_error'] = implode(' ', $errors);
-            header('Location: ' . APP_URL . '/public/?page=order');
+            header('Location: ' . APP_URL . '/?page=order');
             exit;
         }
 
@@ -74,13 +74,13 @@ class OrderController
     public function place(): void
     {
         if (empty($_SESSION['upload_filename']) || empty($_SESSION['order_data'])) {
-            header('Location: ' . APP_URL . '/public/?page=upload');
+            header('Location: ' . APP_URL . '/?page=upload');
             exit;
         }
 
         if (!csrfVerify($_POST['csrf_token'] ?? '')) {
             $_SESSION['order_error'] = 'Invalid security token.';
-            header('Location: ' . APP_URL . '/public/?page=order');
+            header('Location: ' . APP_URL . '/?page=order');
             exit;
         }
 
@@ -94,13 +94,13 @@ class OrderController
 
         if (!file_exists($src)) {
             $_SESSION['order_error'] = 'Uploaded image not found. Please upload again.';
-            header('Location: ' . APP_URL . '/public/?page=upload');
+            header('Location: ' . APP_URL . '/?page=upload');
             exit;
         }
 
         if (!rename($src, $dest)) {
             $_SESSION['order_error'] = 'Failed to process image. Please try again.';
-            header('Location: ' . APP_URL . '/public/?page=order');
+            header('Location: ' . APP_URL . '/?page=order');
             exit;
         }
 
@@ -120,14 +120,14 @@ class OrderController
         unset($_SESSION['upload_filename'], $_SESSION['upload_original_filename'], $_SESSION['order_data'], $_SESSION['order_error']);
 
         $_SESSION['success_order_number'] = $orderNumber;
-        header('Location: ' . APP_URL . '/public/?page=order&action=success');
+        header('Location: ' . APP_URL . '/?page=order&action=success');
         exit;
     }
 
     public function success(): void
     {
         if (empty($_SESSION['success_order_number'])) {
-            header('Location: ' . APP_URL . '/public/');
+            header('Location: ' . APP_URL . '/');
             exit;
         }
         $orderNumber = $_SESSION['success_order_number'];
