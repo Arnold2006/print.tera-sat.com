@@ -7,6 +7,8 @@ class UploadController
 {
     public function index(): void
     {
+        // Clear any previously uploaded files so a fresh upload session starts.
+        unset($_SESSION['upload_files']);
         csrfGenerate();
         require_once __DIR__ . '/../Views/layout/header.php';
         require_once __DIR__ . '/../Views/upload/index.php';
