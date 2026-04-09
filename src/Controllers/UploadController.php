@@ -68,6 +68,24 @@ class UploadController
                 return;
             }
 
+            // Ensure the uploads directory exists and is writable before attempting the move.
+            // This can fail when the storage path could not be resolved at boot time (realpath
+            // returns false when the directory is absent) or when file-system permissions have
+            // not been set correctly (e.g. deploy.sh was not run after cloning).
+            if (!is_dir(UPLOADS_PATH)) {
+                ob_end_clean();
+                http_response_code(500);
+                echo json_encode(['success' => false, 'error' => 'Upload directory does not exist. Please contact the administrator.']);
+                return;
+            }
+
+            if (!is_writable(UPLOADS_PATH)) {
+                ob_end_clean();
+                http_response_code(500);
+                echo json_encode(['success' => false, 'error' => 'Upload directory is not writable. Please contact the administrator.']);
+                return;
+            }
+
             // Generate safe filename
             $newName = bin2hex(random_bytes(16)) . '.' . $ext;
             $dest    = UPLOADS_PATH . $newName;
@@ -91,6 +109,8 @@ class UploadController
                 'redirect_url' => APP_URL . '/?page=order',
             ]);
         } catch (\Throwable $e) {
+            error_log('UploadController::process() exception: ' . $e->getMessage()
+                . ' in ' . $e->getFile() . ':' . $e->getLine());
             ob_end_clean();
             http_response_code(500);
             echo json_encode(['success' => false, 'error' => 'Server error. Please try again.']);
