@@ -5,6 +5,15 @@ $files     = $_SESSION['upload_files'] ?? [];
 $error     = $_SESSION['order_error'] ?? null;
 unset($_SESSION['order_error']);
 $sizes = PRINT_SIZES;
+
+// Restore previously entered values when returning from the summary page
+$savedData  = $_SESSION['order_data'] ?? null;
+$savedItems = $savedData['items'] ?? [];
+// Build a lookup from filename → saved item options so we can match by position
+$savedByIndex = [];
+foreach ($savedItems as $idx => $si) {
+    $savedByIndex[$idx] = $si;
+}
 ?>
 <style>
   .size-label:has(.size-radio:checked) {
@@ -49,7 +58,10 @@ $sizes = PRINT_SIZES;
 
         <?php foreach ($files as $i => $file): ?>
         <?php
-          $previewUrl = $appUrl . '/?page=image&file=' . urlencode($file['filename']) . '&dir=uploads';
+          $previewUrl  = $appUrl . '/?page=image&file=' . urlencode($file['filename']) . '&dir=uploads';
+          $savedItem   = $savedByIndex[$i] ?? null;
+          $savedSize   = $savedItem['size']     ?? '10x15';
+          $savedQty    = (int) ($savedItem['quantity'] ?? 1);
         ?>
         <div class="order-item bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
           <div class="flex gap-4">
@@ -72,7 +84,7 @@ $sizes = PRINT_SIZES;
                 <label class="size-label flex items-center gap-1.5 px-3 py-1.5 border border-gray-200 rounded-lg cursor-pointer hover:border-indigo-400 hover:bg-indigo-50 transition text-sm select-none">
                   <input type="radio" name="size[<?php echo $i; ?>]" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>"
                          class="size-radio w-3.5 h-3.5 text-indigo-600"
-                         <?php echo $key === '10x15' ? 'checked' : ''; ?>>
+                         <?php echo $key === $savedSize ? 'checked' : ''; ?>>
                   <span class="font-medium text-gray-800"><?php echo htmlspecialchars($s['label'], ENT_QUOTES, 'UTF-8'); ?></span>
                   <span class="text-indigo-600 font-semibold">&euro;<?php echo number_format($s['price'], 2); ?></span>
                 </label>
@@ -84,11 +96,11 @@ $sizes = PRINT_SIZES;
                 <span class="text-xs font-semibold text-gray-500">Qty</span>
                 <button type="button"
                         class="qty-minus w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 font-bold text-gray-700 flex items-center justify-center transition text-lg leading-none">&minus;</button>
-                <input type="number" name="quantity[<?php echo $i; ?>]" value="1" min="1" max="100"
+                <input type="number" name="quantity[<?php echo $i; ?>]" value="<?php echo $savedQty; ?>" min="1" max="100"
                        class="item-qty w-16 text-center border border-gray-300 rounded-lg py-1.5 font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-400 text-sm">
                 <button type="button"
                         class="qty-plus w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 font-bold text-gray-700 flex items-center justify-center transition text-lg leading-none">+</button>
-                <span class="ml-auto text-lg font-extrabold text-indigo-600 item-total">&euro;2.99</span>
+                <span class="ml-auto text-lg font-extrabold text-indigo-600 item-total">&euro;<?php echo number_format($sizes[$savedSize]['price'] * $savedQty, 2); ?></span>
               </div>
             </div>
           </div>
@@ -97,9 +109,17 @@ $sizes = PRINT_SIZES;
       </div>
 
       <!-- Grand total -->
+      <?php
+        $initialGrandTotal = 0.0;
+        foreach ($files as $gi => $gf) {
+            $gSize  = $savedByIndex[$gi]['size']     ?? '10x15';
+            $gQty   = (int) ($savedByIndex[$gi]['quantity'] ?? 1);
+            $initialGrandTotal += ($sizes[$gSize]['price'] ?? 2.99) * $gQty;
+        }
+      ?>
       <div class="bg-indigo-50 rounded-2xl p-4 mb-6 flex items-center justify-between">
         <span class="font-semibold text-gray-700">Grand Total</span>
-        <span id="grand-total" class="text-2xl font-extrabold text-indigo-600">&euro;<?php echo number_format(count($files) * 2.99, 2); ?></span>
+        <span id="grand-total" class="text-2xl font-extrabold text-indigo-600">&euro;<?php echo number_format($initialGrandTotal, 2); ?></span>
       </div>
 
       <!-- Customer details -->
@@ -110,19 +130,21 @@ $sizes = PRINT_SIZES;
             <label for="customer_name" class="block text-xs font-medium text-gray-500 mb-1">Full Name *</label>
             <input type="text" id="customer_name" name="customer_name" required maxlength="100"
                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                   placeholder="Jane Doe">
+                   placeholder="Jane Doe"
+                   value="<?php echo htmlspecialchars($savedData['customer_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
           </div>
           <div>
             <label for="customer_email" class="block text-xs font-medium text-gray-500 mb-1">Email Address *</label>
             <input type="email" id="customer_email" name="customer_email" required maxlength="100"
                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                   placeholder="jane@example.com">
+                   placeholder="jane@example.com"
+                   value="<?php echo htmlspecialchars($savedData['customer_email'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
           </div>
           <div>
             <label for="customer_address" class="block text-xs font-medium text-gray-500 mb-1">Delivery Address *</label>
             <textarea id="customer_address" name="customer_address" required rows="3"
                       class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none"
-                      placeholder="Street, City, Postcode, Country"></textarea>
+                      placeholder="Street, City, Postcode, Country"><?php echo htmlspecialchars($savedData['customer_address'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
           </div>
         </div>
       </div>

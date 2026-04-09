@@ -57,6 +57,12 @@ $previewUrl = $appUrl . '/?page=image&file=' . urlencode($order['filename']) . '
               <dt class="text-gray-500">Order Number</dt>
               <dd class="font-mono font-bold text-indigo-600 mt-1"><?php echo htmlspecialchars($order['order_number'], ENT_QUOTES, 'UTF-8'); ?></dd>
             </div>
+            <?php if (!empty($order['group_order_number'])): ?>
+            <div>
+              <dt class="text-gray-500">Group Order #</dt>
+              <dd class="font-mono font-bold text-indigo-400 mt-1"><?php echo htmlspecialchars($order['group_order_number'], ENT_QUOTES, 'UTF-8'); ?></dd>
+            </div>
+            <?php endif; ?>
             <div>
               <dt class="text-gray-500">Date</dt>
               <dd class="font-medium text-gray-900 mt-1"><?php echo htmlspecialchars(date('d M Y, H:i', strtotime($order['created_at'])), ENT_QUOTES, 'UTF-8'); ?></dd>
