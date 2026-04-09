@@ -145,7 +145,7 @@ class AdminController
         }
 
         $downloadName = $order['original_filename'] !== '' ? $order['original_filename'] : $filename;
-        $downloadName = preg_replace('/[^\w.\- ]/', '_', $downloadName);
+        $downloadName = preg_replace('/[^\w.\-]/', '_', $downloadName);
 
         header('Content-Type: ' . $mime);
         header('Content-Length: ' . filesize($filePath));

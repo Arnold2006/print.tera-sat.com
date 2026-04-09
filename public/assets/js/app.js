@@ -163,7 +163,10 @@ async function uploadAllFiles() {
 
   // Redirect to order options page
   setTimeout(() => {
-    window.location.href = uploadUrl.replace('upload&action=process', 'order');
+    const orderUrl = new URL(uploadUrl);
+    orderUrl.searchParams.set('page', 'order');
+    orderUrl.searchParams.delete('action');
+    window.location.href = orderUrl.toString();
   }, 800);
 }
 

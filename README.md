@@ -30,7 +30,7 @@ A production-ready PHP web application for an online image printing service. Cus
 
 After installing extensions, reload your web server:
 ```bash
-# Apache + PHP-FPM
+# Apache + PHP-FPM (replace 8.x with your PHP version, e.g. 8.1, 8.2, 8.3)
 systemctl restart php8.x-fpm && systemctl reload apache2
 # Apache mod_php
 systemctl reload apache2

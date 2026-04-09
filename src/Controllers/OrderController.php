@@ -115,8 +115,13 @@ class OrderController
             exit;
         }
 
-        // Verify all source files exist before moving any
+        // Verify all source files exist and have a safe name before moving any
         foreach ($items as $item) {
+            if (!preg_match('/^[a-f0-9]{32}\.(jpg|jpeg|png|webp)$/i', $item['filename'])) {
+                $_SESSION['order_error'] = 'Invalid image filename detected. Please upload again.';
+                header('Location: ' . APP_URL . '/?page=upload');
+                exit;
+            }
             if (!file_exists(UPLOADS_PATH . $item['filename'])) {
                 $_SESSION['order_error'] = 'One or more uploaded images were not found. Please upload again.';
                 header('Location: ' . APP_URL . '/?page=upload');
