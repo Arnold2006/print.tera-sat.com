@@ -7,6 +7,8 @@ class UploadController
 {
     public function index(): void
     {
+        // Clear any previously uploaded files so a fresh upload session starts.
+        unset($_SESSION['upload_files']);
         csrfGenerate();
         require_once __DIR__ . '/../Views/layout/header.php';
         require_once __DIR__ . '/../Views/upload/index.php';
@@ -97,9 +99,14 @@ class UploadController
                 return;
             }
 
-            // Store in session
-            $_SESSION['upload_filename']          = $newName;
-            $_SESSION['upload_original_filename'] = htmlspecialchars($file['name'], ENT_QUOTES, 'UTF-8');
+            // Append to the multi-file upload list in session
+            if (!isset($_SESSION['upload_files']) || !is_array($_SESSION['upload_files'])) {
+                $_SESSION['upload_files'] = [];
+            }
+            $_SESSION['upload_files'][] = [
+                'filename'          => $newName,
+                'original_filename' => htmlspecialchars($file['name'], ENT_QUOTES, 'UTF-8'),
+            ];
 
             ob_end_clean();
             echo json_encode([

@@ -9,7 +9,7 @@ class OrderController
 {
     public function form(): void
     {
-        if (empty($_SESSION['upload_filename'])) {
+        if (empty($_SESSION['upload_files'])) {
             header('Location: ' . APP_URL . '/?page=upload');
             exit;
         }
@@ -21,7 +21,7 @@ class OrderController
 
     public function summary(): void
     {
-        if (empty($_SESSION['upload_filename'])) {
+        if (empty($_SESSION['upload_files'])) {
             header('Location: ' . APP_URL . '/?page=upload');
             exit;
         }
@@ -32,19 +32,45 @@ class OrderController
             exit;
         }
 
-        $name     = trim(filter_input(INPUT_POST, 'customer_name',    FILTER_SANITIZE_SPECIAL_CHARS) ?? '');
-        $email    = trim(filter_input(INPUT_POST, 'customer_email',   FILTER_SANITIZE_EMAIL) ?? '');
-        $address  = trim(filter_input(INPUT_POST, 'customer_address', FILTER_SANITIZE_SPECIAL_CHARS) ?? '');
-        $size     = trim($_POST['size'] ?? '');
-        $quantity = (int) ($_POST['quantity'] ?? 1);
+        $name    = trim(filter_input(INPUT_POST, 'customer_name',    FILTER_SANITIZE_SPECIAL_CHARS) ?? '');
+        $email   = trim(filter_input(INPUT_POST, 'customer_email',   FILTER_SANITIZE_EMAIL) ?? '');
+        $address = trim(filter_input(INPUT_POST, 'customer_address', FILTER_SANITIZE_SPECIAL_CHARS) ?? '');
+
+        $sizesPost     = $_POST['size']     ?? [];
+        $quantitiesPost = $_POST['quantity'] ?? [];
 
         $errors = [];
         if ($name === '')    $errors[] = 'Name is required.';
         if ($name !== '' && strlen($name) > 100) $errors[] = 'Name is too long (max 100 chars).';
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'A valid email is required.';
         if ($address === '') $errors[] = 'Address is required.';
-        if (!array_key_exists($size, PRINT_SIZES)) $errors[] = 'Invalid print size selected.';
-        if ($quantity < 1 || $quantity > 100) $errors[] = 'Quantity must be between 1 and 100.';
+
+        $uploadFiles = $_SESSION['upload_files'];
+        $items       = [];
+
+        foreach ($uploadFiles as $i => $fileInfo) {
+            $size     = trim($sizesPost[$i] ?? '');
+            $quantity = (int) ($quantitiesPost[$i] ?? 1);
+
+            if (!array_key_exists($size, PRINT_SIZES)) {
+                $errors[] = 'Invalid print size for image ' . ($i + 1) . '.';
+                continue;
+            }
+            if ($quantity < 1 || $quantity > 100) {
+                $errors[] = 'Quantity for image ' . ($i + 1) . ' must be between 1 and 100.';
+                continue;
+            }
+
+            $pricePerUnit = PRINT_SIZES[$size]['price'];
+            $items[] = [
+                'filename'          => $fileInfo['filename'],
+                'original_filename' => $fileInfo['original_filename'],
+                'size'              => $size,
+                'quantity'          => $quantity,
+                'price_per_unit'    => $pricePerUnit,
+                'total_price'       => round($pricePerUnit * $quantity, 2),
+            ];
+        }
 
         if ($errors) {
             $_SESSION['order_error'] = implode(' ', $errors);
@@ -52,17 +78,14 @@ class OrderController
             exit;
         }
 
-        $pricePerUnit = PRINT_SIZES[$size]['price'];
-        $totalPrice   = round($pricePerUnit * $quantity, 2);
+        $grandTotal = round((float) array_sum(array_column($items, 'total_price')), 2);
 
         $_SESSION['order_data'] = [
             'customer_name'    => $name,
             'customer_email'   => $email,
             'customer_address' => $address,
-            'size'             => $size,
-            'quantity'         => $quantity,
-            'price_per_unit'   => $pricePerUnit,
-            'total_price'      => $totalPrice,
+            'items'            => $items,
+            'grand_total'      => $grandTotal,
         ];
 
         csrfGenerate();
@@ -73,7 +96,7 @@ class OrderController
 
     public function place(): void
     {
-        if (empty($_SESSION['upload_filename']) || empty($_SESSION['order_data'])) {
+        if (empty($_SESSION['upload_files']) || empty($_SESSION['order_data'])) {
             header('Location: ' . APP_URL . '/?page=upload');
             exit;
         }
@@ -84,54 +107,68 @@ class OrderController
             exit;
         }
 
-        $filename         = $_SESSION['upload_filename'];
-        $originalFilename = $_SESSION['upload_original_filename'] ?? $filename;
-        $orderData        = $_SESSION['order_data'];
+        $orderData = $_SESSION['order_data'];
+        $items     = $orderData['items'] ?? [];
 
-        // Move file to permanent storage
-        $src  = UPLOADS_PATH  . $filename;
-        $dest = PERMANENT_PATH . $filename;
-
-        if (!file_exists($src)) {
-            $_SESSION['order_error'] = 'Uploaded image not found. Please upload again.';
+        if (empty($items)) {
             header('Location: ' . APP_URL . '/?page=upload');
             exit;
         }
 
-        if (!rename($src, $dest)) {
-            $_SESSION['order_error'] = 'Failed to process image. Please try again.';
-            header('Location: ' . APP_URL . '/?page=order');
-            exit;
+        // Verify all source files exist and have a safe name before moving any
+        foreach ($items as $item) {
+            if (!preg_match('/^[a-f0-9]{32}\.(jpg|jpeg|png|webp)$/i', $item['filename'])) {
+                $_SESSION['order_error'] = 'Invalid image filename detected. Please upload again.';
+                header('Location: ' . APP_URL . '/?page=upload');
+                exit;
+            }
+            if (!file_exists(UPLOADS_PATH . $item['filename'])) {
+                $_SESSION['order_error'] = 'One or more uploaded images were not found. Please upload again.';
+                header('Location: ' . APP_URL . '/?page=upload');
+                exit;
+            }
         }
 
-        $model = new Order();
-        $orderNumber = $model->createOrder([
-            'filename'          => $filename,
-            'original_filename' => $originalFilename,
-            'size'              => $orderData['size'],
-            'quantity'          => $orderData['quantity'],
-            'price'             => $orderData['total_price'],
-            'customer_name'     => $orderData['customer_name'],
-            'customer_email'    => $orderData['customer_email'],
-            'customer_address'  => $orderData['customer_address'],
-        ]);
+        $model        = new Order();
+        $orderNumbers = [];
 
-        // Clear upload/order session data
-        unset($_SESSION['upload_filename'], $_SESSION['upload_original_filename'], $_SESSION['order_data'], $_SESSION['order_error']);
+        foreach ($items as $item) {
+            $src  = UPLOADS_PATH  . $item['filename'];
+            $dest = PERMANENT_PATH . $item['filename'];
 
-        $_SESSION['success_order_number'] = $orderNumber;
+            if (!rename($src, $dest)) {
+                $_SESSION['order_error'] = 'Failed to process image "' . htmlspecialchars($item['original_filename'], ENT_QUOTES, 'UTF-8') . '". Please try again.';
+                header('Location: ' . APP_URL . '/?page=order');
+                exit;
+            }
+
+            $orderNumbers[] = $model->createOrder([
+                'filename'          => $item['filename'],
+                'original_filename' => $item['original_filename'],
+                'size'              => $item['size'],
+                'quantity'          => $item['quantity'],
+                'price'             => $item['total_price'],
+                'customer_name'     => $orderData['customer_name'],
+                'customer_email'    => $orderData['customer_email'],
+                'customer_address'  => $orderData['customer_address'],
+            ]);
+        }
+
+        unset($_SESSION['upload_files'], $_SESSION['order_data'], $_SESSION['order_error']);
+
+        $_SESSION['success_order_numbers'] = $orderNumbers;
         header('Location: ' . APP_URL . '/?page=order&action=success');
         exit;
     }
 
     public function success(): void
     {
-        if (empty($_SESSION['success_order_number'])) {
+        if (empty($_SESSION['success_order_numbers'])) {
             header('Location: ' . APP_URL . '/');
             exit;
         }
-        $orderNumber = $_SESSION['success_order_number'];
-        unset($_SESSION['success_order_number']);
+        $orderNumbers = $_SESSION['success_order_numbers'];
+        unset($_SESSION['success_order_numbers']);
         require_once __DIR__ . '/../Views/layout/header.php';
         require_once __DIR__ . '/../Views/order/success.php';
         require_once __DIR__ . '/../Views/layout/footer.php';

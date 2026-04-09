@@ -123,6 +123,8 @@ switch ($page) {
             $ctrl->orderDetail();
         } elseif ($action === 'update_status' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $ctrl->updateStatus();
+        } elseif ($action === 'download_image') {
+            $ctrl->downloadImage();
         } else {
             $ctrl->dashboard();
         }

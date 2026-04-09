@@ -5,8 +5,8 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 <section class="py-16">
   <div class="max-w-2xl mx-auto px-4 sm:px-6">
     <div class="text-center mb-10">
-      <h1 class="text-3xl font-bold text-gray-900 mb-3">Upload Your Photo</h1>
-      <p class="text-gray-500">Supported formats: JPG, PNG, WebP &bull; Max 10 MB</p>
+      <h1 class="text-3xl font-bold text-gray-900 mb-3">Upload Your Photos</h1>
+      <p class="text-gray-500">Supported formats: JPG, PNG, WebP &bull; Max 10 MB per photo</p>
     </div>
 
     <!-- Error message -->
@@ -28,23 +28,24 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
               d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
           </svg>
         </div>
-        <p class="text-lg font-semibold text-indigo-700">Drag &amp; drop your image here</p>
+        <p class="text-lg font-semibold text-indigo-700">Drag &amp; drop your photos here</p>
         <p class="text-sm text-indigo-500 mt-1">or <span class="underline font-medium">click to browse</span></p>
+        <p class="text-xs text-indigo-400 mt-2">You can select multiple photos at once</p>
       </div>
-      <!-- Preview -->
+      <!-- Preview grid -->
       <div id="preview-container" class="hidden w-full">
-        <img id="image-preview" src="" alt="Preview" class="max-h-64 mx-auto rounded-xl object-contain shadow-md">
-        <p id="preview-filename" class="text-sm text-gray-500 mt-3"></p>
+        <div id="preview-grid" class="flex flex-wrap gap-3 justify-center mb-3"></div>
+        <p id="preview-filename" class="text-sm text-gray-500 mt-1"></p>
       </div>
     </div>
 
-    <!-- File input (hidden) -->
-    <input type="file" id="file-input" class="hidden" accept=".jpg,.jpeg,.png,.webp" name="image">
+    <!-- File input (hidden) – multiple enabled -->
+    <input type="file" id="file-input" class="hidden" accept=".jpg,.jpeg,.png,.webp" name="image" multiple>
 
     <!-- Progress bar -->
     <div id="progress-container" class="hidden mt-6">
       <div class="flex justify-between text-sm text-gray-600 mb-2">
-        <span>Uploading&hellip;</span>
+        <span id="progress-label">Uploading&hellip;</span>
         <span id="progress-text">0%</span>
       </div>
       <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
@@ -57,7 +58,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
       <button id="upload-btn"
               class="hidden w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-10 py-3 rounded-xl shadow-md hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
               disabled>
-        Upload Photo
+        Upload Photos
       </button>
     </div>
 
