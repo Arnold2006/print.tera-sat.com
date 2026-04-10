@@ -77,13 +77,13 @@ $sizes  = PRINT_SIZES;
     <p class="text-center text-gray-500 mb-14 max-w-xl mx-auto">No hidden fees. Pay only for what you print.</p>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
       <?php
-      $cards = [
-        ['10x15', 'Most Popular', 'bg-indigo-600', true],
-        ['13x18', '',             'bg-gray-900',   false],
-        ['20x30', 'Large Format', 'bg-purple-600', false],
-      ];
-      foreach ($cards as [$key, $badge, $btnClass, $featured]):
-        $s = $sizes[$key];
+      $btnClasses = ['bg-indigo-600', 'bg-gray-900', 'bg-purple-600'];
+      $i = 0;
+      foreach ($sizes as $key => $s):
+        $featured  = ($i === 0);
+        $btnClass  = $btnClasses[$i % count($btnClasses)];
+        $badge     = $featured ? 'Most Popular' : '';
+        $i++;
       ?>
       <div class="relative bg-white rounded-2xl shadow-md hover:shadow-xl transition p-8 flex flex-col items-center text-center <?php echo $featured ? 'ring-2 ring-indigo-500' : ''; ?>">
         <?php if ($badge): ?>
