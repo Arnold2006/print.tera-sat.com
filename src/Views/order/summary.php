@@ -137,6 +137,10 @@ $sizes     = PRINT_SIZES;
               .then(function (data) {
                 if (data.error) { throw new Error(data.error); }
                 return data.id;
+              })
+              .catch(function (err) {
+                showError('Unable to start payment. Please try again or contact support.');
+                throw err;
               });
             },
 
@@ -152,6 +156,10 @@ $sizes     = PRINT_SIZES;
                 if (result.error) { throw new Error(result.error); }
                 window.location.href = result.redirectUrl;
               });
+            },
+
+            onCancel: function () {
+              errorEl.classList.add('hidden');
             },
 
             onError: function (err) {
