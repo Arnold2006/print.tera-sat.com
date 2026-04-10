@@ -38,9 +38,9 @@ define('ALLOWED_MIME_TYPES', ['image/jpeg', 'image/png', 'image/webp']);
 define('ALLOWED_EXTENSIONS', ['jpg', 'jpeg', 'png', 'webp']);
 
 define('PRINT_SIZES', [
-    '10x15' => ['label' => '10x15 cm', 'price' => 2.99],
-    '13x18' => ['label' => '13x18 cm', 'price' => 4.99],
-    '20x30' => ['label' => '20x30 cm', 'price' => 8.99],
+    '30x40' => ['label' => '30x40 cm', 'price' => 14.75],
+    '50x70' => ['label' => '50x70 cm', 'price' => 24.10],
+    '70x100' => ['label' => '70x100 cm', 'price' => 40.25],
 ]);
 
 define('STORAGE_PATH',   realpath(__DIR__ . '/../storage') . DIRECTORY_SEPARATOR);
