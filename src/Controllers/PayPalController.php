@@ -246,7 +246,7 @@ class PayPalController
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_CUSTOMREQUEST  => $method,
-            CURLOPT_POSTFIELDS     => json_encode($payload),
+            CURLOPT_POSTFIELDS     => json_encode(empty($payload) ? new \stdClass() : $payload),
             CURLOPT_HTTPHEADER     => [
                 'Content-Type: application/json',
                 'Authorization: Bearer ' . $accessToken,
