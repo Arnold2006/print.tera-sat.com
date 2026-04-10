@@ -89,6 +89,19 @@ $appUrl = APP_URL;
         </div>
       </div>
 
+      <!-- Image retention notice -->
+      <div class="flex items-start gap-4 bg-amber-50 border border-amber-200 rounded-2xl p-6 mb-6">
+        <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="font-semibold text-amber-900 mb-1">Image File Retention Policy</h3>
+          <p class="text-amber-800 text-sm">Uploaded image files are automatically deleted from our server after <strong>30 days</strong>. The order record itself is retained, but the associated image file will no longer be available after that period.</p>
+        </div>
+      </div>
+
       <!-- Trust badge -->
       <div class="bg-indigo-600 rounded-2xl p-8 text-white text-center">
         <svg class="w-12 h-12 mx-auto mb-4 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
