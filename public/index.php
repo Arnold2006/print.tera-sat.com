@@ -6,21 +6,6 @@ define('BASE_PATH', dirname(__DIR__));
 
 require_once BASE_PATH . '/config/config.php';
 
-// Content-Security-Policy – set before any output
-header(
-    "Content-Security-Policy: " .
-    "default-src 'self'; " .
-    "script-src 'self' https://cdn.tailwindcss.com https://www.paypal.com https://www.sandbox.paypal.com https://www.paypalobjects.com; " .
-    "style-src 'self' https://fonts.googleapis.com; " .
-    "font-src 'self' data: https://fonts.gstatic.com; " .
-    "img-src 'self' data: https://www.paypalobjects.com; " .
-    "frame-src https://www.paypal.com https://www.sandbox.paypal.com; " .
-    "connect-src 'self'; " .
-    "object-src 'none'; " .
-    "base-uri 'self'; " .
-    "form-action 'self'"
-);
-
 // Require models
 require_once BASE_PATH . '/src/Models/Database.php';
 require_once BASE_PATH . '/src/Models/Order.php';

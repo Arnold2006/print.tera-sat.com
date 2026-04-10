@@ -32,9 +32,9 @@ class OrderController
             exit;
         }
 
-        $name    = trim(filter_input(INPUT_POST, 'customer_name',    FILTER_DEFAULT) ?? '');
+        $name    = trim(filter_input(INPUT_POST, 'customer_name',    FILTER_SANITIZE_SPECIAL_CHARS) ?? '');
         $email   = trim(filter_input(INPUT_POST, 'customer_email',   FILTER_SANITIZE_EMAIL) ?? '');
-        $address = trim(filter_input(INPUT_POST, 'customer_address', FILTER_DEFAULT) ?? '');
+        $address = trim(filter_input(INPUT_POST, 'customer_address', FILTER_SANITIZE_SPECIAL_CHARS) ?? '');
 
         $sizesPost     = $_POST['size']     ?? [];
         $quantitiesPost = $_POST['quantity'] ?? [];
@@ -44,7 +44,6 @@ class OrderController
         if ($name !== '' && strlen($name) > 100) $errors[] = 'Name is too long (max 100 chars).';
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'A valid email is required.';
         if ($address === '') $errors[] = 'Address is required.';
-        if ($address !== '' && strlen($address) > 500) $errors[] = 'Address is too long (max 500 chars).';
 
         $uploadFiles = $_SESSION['upload_files'];
         $items       = [];
