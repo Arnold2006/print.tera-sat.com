@@ -6,8 +6,16 @@ RewriteEngine On
     Require all denied
 </FilesMatch>
 
-# Redirect HTTP to HTTPS (skip for localhost / 127.0.0.1 in development)
+# Redirect HTTP to HTTPS (skip for localhost / 127.0.0.1 in development,
+# and skip when a reverse proxy already handled TLS and set X-Forwarded-Proto: https).
+#
+# IMPORTANT: your reverse proxy MUST strip any client-supplied X-Forwarded-Proto
+# header and set its own before forwarding to this server.  Without that, a
+# malicious client could send X-Forwarded-Proto: https directly and bypass this
+# redirect.  Example Nginx directive: proxy_set_header X-Forwarded-Proto $scheme;
+# combined with clearing the header from untrusted sources.
 RewriteCond %{HTTPS} off
+RewriteCond %{HTTP:X-Forwarded-Proto} !^https$ [NC]
 RewriteCond %{HTTP_HOST} !^localhost(:[0-9]+)?$ [NC]
 RewriteCond %{HTTP_HOST} !^127\.0\.0\.1(:[0-9]+)?$ [NC]
 RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
