@@ -16,6 +16,7 @@ require_once BASE_PATH . '/src/Controllers/HomeController.php';
 require_once BASE_PATH . '/src/Controllers/UploadController.php';
 require_once BASE_PATH . '/src/Controllers/OrderController.php';
 require_once BASE_PATH . '/src/Controllers/AdminController.php';
+require_once BASE_PATH . '/src/Controllers/PayPalController.php';
 
 // Start session
 if (session_status() === PHP_SESSION_NONE) {
@@ -127,6 +128,19 @@ switch ($page) {
             $ctrl->downloadImage();
         } else {
             $ctrl->dashboard();
+        }
+        break;
+
+    case 'paypal':
+        $ctrl = new src\Controllers\PayPalController();
+        if ($action === 'create-order' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+            $ctrl->createOrder();
+        } elseif ($action === 'capture-order' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+            $ctrl->captureOrder();
+        } else {
+            http_response_code(405);
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Method not allowed.']);
         }
         break;
 

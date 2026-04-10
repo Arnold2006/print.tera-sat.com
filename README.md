@@ -139,7 +139,53 @@ Default credentials are set via `.env`:
 - Username: `admin`
 - Password: set via `ADMIN_PASSWORD_HASH`
 
-## Security Notes
+## PayPal Smart Buttons
+
+The checkout page uses [PayPal Smart Buttons](https://developer.paypal.com/docs/checkout/) to collect payment. The integration is fully server-side: the PayPal client secret is **never** sent to the browser, and all amounts are validated against the server-side session before capture.
+
+### Setup
+
+1. [Create a PayPal developer account](https://developer.paypal.com/) and create an app in the dashboard to obtain a **Client ID** and **Secret**.
+
+2. Add the following variables to your `.env` file:
+
+   ```
+   PAYPAL_CLIENT_ID=<your-client-id>
+   PAYPAL_CLIENT_SECRET=<your-client-secret>
+   PAYPAL_ENV=sandbox     # use 'live' for production
+   ```
+
+3. Ensure PHP's `curl` extension is enabled (required for server-to-server PayPal API calls):
+
+   ```bash
+   # Debian/Ubuntu
+   apt install php-curl
+   systemctl reload apache2
+   ```
+
+### Sandbox Testing
+
+1. Set `PAYPAL_ENV=sandbox` and use your sandbox Client ID / Secret.
+2. Log in with a [PayPal sandbox buyer account](https://developer.paypal.com/tools/sandbox/) when the PayPal modal appears.
+3. Complete the test payment; you will be redirected to the order success page.
+
+### How It Works
+
+| Step | What happens |
+|------|-------------|
+| Customer clicks **Pay with PayPal** | JS calls `POST ?page=paypal&action=create-order` |
+| Server creates a PayPal order | PHP reads the grand total from the session, calls the PayPal Orders API, returns `{ id }` |
+| Customer approves payment | PayPal calls `onApprove` in the browser |
+| JS calls `POST ?page=paypal&action=capture-order` | PHP captures the payment, verifies the amount, saves the order to the DB |
+| Redirect to success page | Order number displayed to the customer |
+
+If `PAYPAL_CLIENT_ID` is not set, the page falls back to a plain form-submit button.
+
+### Optional: Webhooks
+
+For production, configure a [PayPal Webhook](https://developer.paypal.com/docs/api/webhooks/) to listen for `PAYMENT.CAPTURE.COMPLETED` events. This lets you reconcile orders server-to-server without relying solely on the browser redirect (e.g., if the customer closes the tab after payment but before the redirect). A webhook handler is not included in this integration but can be added as a future improvement.
+
+
 
 - All forms are protected with CSRF tokens
 - File uploads are validated by MIME type (via `finfo`) and extension
