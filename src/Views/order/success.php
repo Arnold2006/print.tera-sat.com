@@ -16,6 +16,16 @@
       <p class="text-xl font-extrabold text-indigo-600 tracking-wide mb-1">
         <?php echo htmlspecialchars($orderNumber, ENT_QUOTES, 'UTF-8'); ?>
       </p>
+      <?php if (!empty($paypalTransactionId)): ?>
+      <div class="mt-4 pt-4 border-t border-indigo-100">
+        <p class="text-sm text-green-600 font-semibold flex items-center gap-1 mb-2">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          Payment Accepted
+        </p>
+        <p class="text-xs text-gray-500">PayPal Transaction ID</p>
+        <p class="font-mono text-sm font-semibold text-gray-800 mt-0.5"><?php echo htmlspecialchars($paypalTransactionId, ENT_QUOTES, 'UTF-8'); ?></p>
+      </div>
+      <?php endif; ?>
       <p class="text-xs text-gray-400 mt-2">Keep this for your records</p>
     </div>
 
