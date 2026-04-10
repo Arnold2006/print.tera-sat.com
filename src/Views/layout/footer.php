@@ -119,57 +119,5 @@
 </div>
 
 <script src="<?php echo htmlspecialchars(APP_URL . '/assets/js/app.js', ENT_QUOTES, 'UTF-8'); ?>"></script>
-<script>
-  // Mobile menu toggle
-  const btn  = document.getElementById('mobile-menu-btn');
-  const menu = document.getElementById('mobile-menu');
-  const open = document.getElementById('menu-icon-open');
-  const close= document.getElementById('menu-icon-close');
-  if (btn) {
-    btn.addEventListener('click', () => {
-      menu.classList.toggle('hidden');
-      open.classList.toggle('hidden');
-      close.classList.toggle('hidden');
-    });
-  }
-
-  // Modal helpers
-  function openModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-      modal.classList.remove('hidden');
-      document.body.classList.add('overflow-hidden');
-    }
-  }
-
-  function closeModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-      modal.classList.add('hidden');
-      document.body.classList.remove('overflow-hidden');
-    }
-  }
-
-  // Privacy Policy modal
-  document.getElementById('open-privacy-modal').addEventListener('click', () => openModal('privacy-modal'));
-  document.getElementById('close-privacy-modal').addEventListener('click', () => closeModal('privacy-modal'));
-  document.getElementById('close-privacy-modal-btn').addEventListener('click', () => closeModal('privacy-modal'));
-  document.getElementById('privacy-modal-backdrop').addEventListener('click', () => closeModal('privacy-modal'));
-
-  // Terms of Service modal
-  document.getElementById('open-tos-modal').addEventListener('click', () => openModal('tos-modal'));
-  document.getElementById('close-tos-modal').addEventListener('click', () => closeModal('tos-modal'));
-  document.getElementById('close-tos-modal-btn').addEventListener('click', () => closeModal('tos-modal'));
-  document.getElementById('tos-modal-backdrop').addEventListener('click', () => closeModal('tos-modal'));
-
-  // Close modals on Escape key
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      ['privacy-modal', 'tos-modal'].forEach(id => {
-        if (!document.getElementById(id).classList.contains('hidden')) closeModal(id);
-      });
-    }
-  });
-</script>
 </body>
 </html>

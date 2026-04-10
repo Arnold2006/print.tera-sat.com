@@ -84,18 +84,26 @@ class AdminController
             if (!csrfVerify($_POST['csrf_token'] ?? '')) {
                 $error = 'Invalid security token.';
             } else {
-                $username = trim($_POST['username'] ?? '');
-                $password = $_POST['password'] ?? '';
-                $adminModel = new Admin();
+                // Rate limiting: max 5 failed attempts per 15 minutes, keyed by IP
+                $rateLimitError = $this->checkLoginRateLimit();
+                if ($rateLimitError !== null) {
+                    $error = $rateLimitError;
+                } else {
+                    $username = trim($_POST['username'] ?? '');
+                    $password = $_POST['password'] ?? '';
+                    $adminModel = new Admin();
 
-                if ($username !== '' && $adminModel->verifyPassword($username, $password)) {
-                    session_regenerate_id(true);
-                    $_SESSION['admin_logged_in'] = true;
-                    $_SESSION['admin_username']  = $username;
-                    header('Location: ' . APP_URL . '/?page=admin');
-                    exit;
+                    if ($username !== '' && $adminModel->verifyPassword($username, $password)) {
+                        $this->resetLoginRateLimit();
+                        session_regenerate_id(true);
+                        $_SESSION['admin_logged_in'] = true;
+                        $_SESSION['admin_username']  = $username;
+                        header('Location: ' . APP_URL . '/?page=admin');
+                        exit;
+                    }
+                    $this->recordFailedLogin();
+                    $error = 'Invalid username or password.';
                 }
-                $error = 'Invalid username or password.';
             }
         }
 
@@ -107,6 +115,19 @@ class AdminController
 
     public function logout(): void
     {
+        $_SESSION = [];
+        if (ini_get('session.use_cookies')) {
+            $params = session_get_cookie_params();
+            setcookie(
+                session_name(),
+                '',
+                time() - 42000,
+                $params['path'],
+                $params['domain'],
+                $params['secure'],
+                $params['httponly']
+            );
+        }
         session_destroy();
         header('Location: ' . APP_URL . '/?page=admin&action=login');
         exit;
@@ -208,5 +229,67 @@ class AdminController
         header('Cache-Control: private, no-cache');
         readfile($filePath);
         exit;
+    }
+
+    // -------------------------------------------------------------------------
+    // Login rate limiting – IP-based, backed by a file in storage/security/
+    //
+    // NOTE: REMOTE_ADDR reflects the direct TCP peer. If the app runs behind
+    // a trusted reverse proxy that sets X-Forwarded-For, replace REMOTE_ADDR
+    // with the validated client IP from that header. Using X-Forwarded-For
+    // without proxy trust verification would allow attackers to spoof IPs.
+    // -------------------------------------------------------------------------
+
+    private function rateLimitFile(): string
+    {
+        $ip  = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+        $dir = rtrim((string) STORAGE_PATH, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'security';
+        if (!is_dir($dir)) {
+            mkdir($dir, 0750, true);
+        }
+        return $dir . DIRECTORY_SEPARATOR . 'login_' . md5($ip) . '.json';
+    }
+
+    private function readRateLimitData(): array
+    {
+        $file = $this->rateLimitFile();
+        if (!file_exists($file)) {
+            return ['count' => 0, 'last' => 0];
+        }
+        $data = json_decode((string) file_get_contents($file), true);
+        return is_array($data) ? $data : ['count' => 0, 'last' => 0];
+    }
+
+    private function checkLoginRateLimit(): ?string
+    {
+        $data = $this->readRateLimitData();
+        // Reset counter if the 15-minute window has expired
+        if ((int) $data['last'] > 0 && (time() - (int) $data['last']) > 900) {
+            return null;
+        }
+        if ((int) $data['count'] >= 5) {
+            return 'Too many failed login attempts. Please try again in 15 minutes.';
+        }
+        return null;
+    }
+
+    private function recordFailedLogin(): void
+    {
+        $data = $this->readRateLimitData();
+        // Reset counter if the window has expired
+        if ((int) $data['last'] > 0 && (time() - (int) $data['last']) > 900) {
+            $data = ['count' => 0, 'last' => 0];
+        }
+        $data['count'] = (int) $data['count'] + 1;
+        $data['last']  = time();
+        file_put_contents($this->rateLimitFile(), json_encode($data), LOCK_EX);
+    }
+
+    private function resetLoginRateLimit(): void
+    {
+        $file = $this->rateLimitFile();
+        if (file_exists($file)) {
+            unlink($file);
+        }
     }
 }

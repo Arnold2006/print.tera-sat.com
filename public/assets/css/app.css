@@ -1,0 +1,10 @@
+/* Base font */
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+/* Size selector: highlight the card whose radio button is checked */
+.size-label:has(.size-radio:checked) {
+    border-color: #6366f1;
+    background-color: #eef2ff;
+}
