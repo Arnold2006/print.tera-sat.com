@@ -40,7 +40,7 @@ define('ALLOWED_EXTENSIONS', ['jpg', 'jpeg', 'png', 'webp']);
 define('PRINT_SIZES', [
     '30x40'  => ['label' => '30x40 cm',  'price' => (float) ($_ENV['PRINT_PRICE_30x40']  ?? 14.75)],
     '50x70'  => ['label' => '50x70 cm',  'price' => (float) ($_ENV['PRINT_PRICE_50x70']  ?? 24.10)],
-    '70x100' => ['label' => '70x100 cm', 'price' => (float) ($_ENV['PRINT_PRICE_70x100'] ?? 40.25)],
+    '60x80'  => ['label' => '60x80 cm',  'price' => (float) ($_ENV['PRINT_PRICE_60x80']  ?? 40.25)],
 ]);
 
 define('STORAGE_PATH',   realpath(__DIR__ . '/../storage') . DIRECTORY_SEPARATOR);
