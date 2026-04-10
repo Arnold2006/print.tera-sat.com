@@ -232,13 +232,22 @@ class AdminController
     }
 
     // -------------------------------------------------------------------------
-    // Login rate limiting – IP-based, backed by a temp file
+    // Login rate limiting – IP-based, backed by a file in storage/security/
+    //
+    // NOTE: REMOTE_ADDR reflects the direct TCP peer. If the app runs behind
+    // a trusted reverse proxy that sets X-Forwarded-For, replace REMOTE_ADDR
+    // with the validated client IP from that header. Using X-Forwarded-For
+    // without proxy trust verification would allow attackers to spoof IPs.
     // -------------------------------------------------------------------------
 
     private function rateLimitFile(): string
     {
-        $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
-        return sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'ps_login_' . md5($ip) . '.json';
+        $ip  = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+        $dir = rtrim((string) STORAGE_PATH, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'security';
+        if (!is_dir($dir)) {
+            mkdir($dir, 0750, true);
+        }
+        return $dir . DIRECTORY_SEPARATOR . 'login_' . md5($ip) . '.json';
     }
 
     private function readRateLimitData(): array
