@@ -93,6 +93,14 @@ $sizes     = PRINT_SIZES;
            class="flex-1 text-center py-3 px-6 border border-gray-300 rounded-xl text-gray-700 font-semibold hover:bg-gray-50 transition">
           &larr; Edit Options
         </a>
+        <?php if (PAYPAL_CLIENT_ID !== ''): ?>
+        <!-- PayPal Smart Buttons -->
+        <div class="flex-1">
+          <div id="paypal-button-container"></div>
+          <p id="paypal-error" class="hidden mt-2 text-sm text-red-600 text-center"></p>
+        </div>
+        <?php else: ?>
+        <!-- Fallback: plain form submit (PayPal not configured) -->
         <form method="POST" action="<?php echo htmlspecialchars($appUrl . '/?page=order&action=place', ENT_QUOTES, 'UTF-8'); ?>" class="flex-1">
           <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
           <button type="submit"
@@ -100,7 +108,60 @@ $sizes     = PRINT_SIZES;
             Confirm Order &rarr;
           </button>
         </form>
+        <?php endif; ?>
       </div>
+
+      <?php if (PAYPAL_CLIENT_ID !== ''): ?>
+      <script src="https://www.paypal.com/sdk/js?client-id=<?php echo htmlspecialchars(PAYPAL_CLIENT_ID, ENT_QUOTES, 'UTF-8'); ?>&currency=EUR"></script>
+      <script>
+        (function () {
+          var csrfToken = <?php echo json_encode($csrfToken); ?>;
+          var createUrl = <?php echo json_encode($appUrl . '/?page=paypal&action=create-order'); ?>;
+          var captureUrl = <?php echo json_encode($appUrl . '/?page=paypal&action=capture-order'); ?>;
+          var errorEl = document.getElementById('paypal-error');
+
+          function showError(msg) {
+            errorEl.textContent = msg;
+            errorEl.classList.remove('hidden');
+          }
+
+          paypal.Buttons({
+            createOrder: function () {
+              errorEl.classList.add('hidden');
+              return fetch(createUrl, {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body:    'csrf_token=' + encodeURIComponent(csrfToken),
+              })
+              .then(function (res) { return res.json(); })
+              .then(function (data) {
+                if (data.error) { throw new Error(data.error); }
+                return data.id;
+              });
+            },
+
+            onApprove: function (data) {
+              return fetch(captureUrl, {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body:    'csrf_token=' + encodeURIComponent(csrfToken)
+                       + '&paypal_order_id=' + encodeURIComponent(data.orderID),
+              })
+              .then(function (res) { return res.json(); })
+              .then(function (result) {
+                if (result.error) { throw new Error(result.error); }
+                window.location.href = result.redirectUrl;
+              });
+            },
+
+            onError: function (err) {
+              showError('Payment could not be completed. Please try again or contact support.');
+              console.error('PayPal error:', err);
+            },
+          }).render('#paypal-button-container');
+        })();
+      </script>
+      <?php endif; ?>
     </div>
   </div>
 </section>

@@ -46,3 +46,8 @@ define('PRINT_SIZES', [
 define('STORAGE_PATH',   realpath(__DIR__ . '/../storage') . DIRECTORY_SEPARATOR);
 define('UPLOADS_PATH',   STORAGE_PATH . 'uploads'   . DIRECTORY_SEPARATOR);
 define('PERMANENT_PATH', STORAGE_PATH . 'permanent' . DIRECTORY_SEPARATOR);
+
+// PayPal configuration
+define('PAYPAL_CLIENT_ID',     $_ENV['PAYPAL_CLIENT_ID']     ?? '');
+define('PAYPAL_CLIENT_SECRET', $_ENV['PAYPAL_CLIENT_SECRET'] ?? '');
+define('PAYPAL_ENV',           $_ENV['PAYPAL_ENV']           ?? 'sandbox'); // 'sandbox' or 'live'
