@@ -7,19 +7,16 @@
       </svg>
     </div>
     <h1 class="text-3xl font-bold text-gray-900 mb-3">
-      <?php echo count($orderNumbers) === 1 ? 'Order Placed!' : count($orderNumbers) . ' Orders Placed!'; ?>
-      &#127881;
+      Order Placed! &#127881;
     </h1>
-    <p class="text-gray-500 mb-6">Thank you for your order<?php echo count($orderNumbers) !== 1 ? 's' : ''; ?>. We'll start processing them shortly.</p>
+    <p class="text-gray-500 mb-6">Thank you for your order. We'll start processing it shortly.</p>
 
     <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-6 mb-8">
-      <p class="text-sm text-gray-500 mb-3">Your order number<?php echo count($orderNumbers) !== 1 ? 's' : ''; ?></p>
-      <?php foreach ($orderNumbers as $orderNumber): ?>
+      <p class="text-sm text-gray-500 mb-3">Your order number</p>
       <p class="text-xl font-extrabold text-indigo-600 tracking-wide mb-1">
         <?php echo htmlspecialchars($orderNumber, ENT_QUOTES, 'UTF-8'); ?>
       </p>
-      <?php endforeach; ?>
-      <p class="text-xs text-gray-400 mt-2">Keep these for your records</p>
+      <p class="text-xs text-gray-400 mt-2">Keep this for your records</p>
     </div>
 
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-8 text-left text-sm text-gray-600">

@@ -69,7 +69,7 @@ $statusColors = [
         <table class="min-w-full divide-y divide-gray-100">
           <thead class="bg-gray-50">
             <tr>
-              <?php foreach (['Order #', 'Customer', 'Size', 'Qty', 'Price', 'Status', 'Date', 'Actions'] as $th): ?>
+              <?php foreach (['Order #', 'Group #', 'Customer', 'Size', 'Qty', 'Price', 'Status', 'Date', 'Actions'] as $th): ?>
               <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                 <?php echo htmlspecialchars($th, ENT_QUOTES, 'UTF-8'); ?>
               </th>
@@ -81,6 +81,9 @@ $statusColors = [
             <tr class="hover:bg-gray-50 transition">
               <td class="px-4 py-3 font-mono text-sm font-semibold text-indigo-600">
                 <?php echo htmlspecialchars($order['order_number'], ENT_QUOTES, 'UTF-8'); ?>
+              </td>
+              <td class="px-4 py-3 font-mono text-xs text-gray-500">
+                <?php echo $order['group_order_number'] ? htmlspecialchars($order['group_order_number'], ENT_QUOTES, 'UTF-8') : '—'; ?>
               </td>
               <td class="px-4 py-3">
                 <div class="text-sm font-medium text-gray-900"><?php echo htmlspecialchars($order['customer_name'], ENT_QUOTES, 'UTF-8'); ?></div>

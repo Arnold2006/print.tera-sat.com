@@ -18,23 +18,24 @@ class Order
     {
         $orderNumber = $this->generateOrderNumber();
         $sql = 'INSERT INTO orders
-                    (order_number, filename, original_filename, size, quantity, price,
+                    (order_number, group_order_number, filename, original_filename, size, quantity, price,
                      customer_name, customer_email, customer_address, status)
                 VALUES
-                    (:order_number, :filename, :original_filename, :size, :quantity, :price,
+                    (:order_number, :group_order_number, :filename, :original_filename, :size, :quantity, :price,
                      :customer_name, :customer_email, :customer_address, :status)';
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
-            ':order_number'      => $orderNumber,
-            ':filename'          => $data['filename'],
-            ':original_filename' => $data['original_filename'],
-            ':size'              => $data['size'],
-            ':quantity'          => (int) $data['quantity'],
-            ':price'             => (float) $data['price'],
-            ':customer_name'     => $data['customer_name'],
-            ':customer_email'    => $data['customer_email'],
-            ':customer_address'  => $data['customer_address'],
-            ':status'            => 'pending',
+            ':order_number'       => $orderNumber,
+            ':group_order_number' => $data['group_order_number'] ?? null,
+            ':filename'           => $data['filename'],
+            ':original_filename'  => $data['original_filename'],
+            ':size'               => $data['size'],
+            ':quantity'           => (int) $data['quantity'],
+            ':price'              => (float) $data['price'],
+            ':customer_name'      => $data['customer_name'],
+            ':customer_email'     => $data['customer_email'],
+            ':customer_address'   => $data['customer_address'],
+            ':status'             => 'pending',
         ]);
         return $orderNumber;
     }
@@ -76,6 +77,16 @@ class Order
         do {
             $number = 'ORD-' . strtoupper(substr(bin2hex(random_bytes(4)), 0, 8));
             $stmt = $this->db->prepare('SELECT id FROM orders WHERE order_number = :n LIMIT 1');
+            $stmt->execute([':n' => $number]);
+        } while ($stmt->fetch());
+        return $number;
+    }
+
+    public function generateGroupOrderNumber(): string
+    {
+        do {
+            $number = 'GRP-' . strtoupper(substr(bin2hex(random_bytes(4)), 0, 8));
+            $stmt = $this->db->prepare('SELECT id FROM orders WHERE group_order_number = :n LIMIT 1');
             $stmt->execute([':n' => $number]);
         } while ($stmt->fetch());
         return $number;
