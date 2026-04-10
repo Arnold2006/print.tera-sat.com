@@ -93,7 +93,7 @@ class PayPalController
         }
 
         $paypalOrderId = trim($_POST['paypal_order_id'] ?? '');
-        if (!preg_match('/^[A-Z0-9]{6,50}$/', $paypalOrderId)) {
+        if (!preg_match('/^[A-Za-z0-9]{6,50}$/', $paypalOrderId)) {
             $this->jsonError(400, 'Invalid PayPal order ID.');
         }
 
@@ -120,10 +120,13 @@ class PayPalController
             $this->jsonError(402, 'Payment was not completed.');
         }
 
-        // Verify that the captured amount matches the server-side total
-        $capturedAmount = (float) ($capture['purchase_units'][0]['payments']['captures'][0]['amount']['value'] ?? 0);
-        $expectedTotal  = (float) ($_SESSION['order_data']['grand_total'] ?? 0);
-        if (abs($capturedAmount - $expectedTotal) > 0.01) {
+        // Verify that the captured amount matches the server-side total (compare as formatted strings)
+        $capturedAmount = number_format(
+            (float) ($capture['purchase_units'][0]['payments']['captures'][0]['amount']['value'] ?? 0),
+            2, '.', ''
+        );
+        $expectedTotal = number_format((float) ($_SESSION['order_data']['grand_total'] ?? 0), 2, '.', '');
+        if ($capturedAmount !== $expectedTotal) {
             $this->jsonError(400, 'Payment amount mismatch. Please contact support.');
         }
 
@@ -200,10 +203,15 @@ class PayPalController
             CURLOPT_TIMEOUT        => 15,
         ]);
         $body     = curl_exec($ch);
+        $curlErr  = $body === false ? curl_error($ch) : '';
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        if ($httpCode !== 200 || !$body) {
+        if ($body === false) {
+            throw new \RuntimeException('cURL error obtaining PayPal access token: ' . $curlErr);
+        }
+
+        if ($httpCode !== 200 || $body === '') {
             throw new \RuntimeException('Unable to obtain PayPal access token (HTTP ' . $httpCode . ').');
         }
 
@@ -238,8 +246,13 @@ class PayPalController
             CURLOPT_TIMEOUT        => 30,
         ]);
         $body     = curl_exec($ch);
+        $curlErr  = $body === false ? curl_error($ch) : '';
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
+
+        if ($body === false) {
+            return ['httpCode' => 0, 'body' => [], 'curlError' => $curlErr];
+        }
 
         return [
             'httpCode' => $httpCode,
