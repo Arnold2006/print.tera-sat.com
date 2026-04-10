@@ -171,7 +171,7 @@ The checkout page uses [PayPal Smart Buttons](https://developer.paypal.com/docs/
 
 ### How It Works
 
-| Step | What happens |
+| Step | Description |
 |------|-------------|
 | Customer clicks **Pay with PayPal** | JS calls `POST ?page=paypal&action=create-order` |
 | Server creates a PayPal order | PHP reads the grand total from the session, calls the PayPal Orders API, returns `{ id }` |

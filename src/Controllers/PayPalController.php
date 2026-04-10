@@ -65,7 +65,11 @@ class PayPalController
             ]],
         ];
 
-        $response = $this->callApi('POST', '/v2/checkout/orders', $accessToken, $payload);
+        try {
+            $response = $this->callApi('POST', '/v2/checkout/orders', $accessToken, $payload);
+        } catch (\RuntimeException $e) {
+            $this->jsonError(502, 'Payment service unavailable. Please try again later.');
+        }
 
         if ($response['httpCode'] !== 201 || empty($response['body']['id'])) {
             $this->jsonError(502, 'Failed to create PayPal order.');
@@ -104,12 +108,16 @@ class PayPalController
         }
 
         // Capture the PayPal order
-        $response = $this->callApi(
-            'POST',
-            '/v2/checkout/orders/' . $paypalOrderId . '/capture',
-            $accessToken,
-            []
-        );
+        try {
+            $response = $this->callApi(
+                'POST',
+                '/v2/checkout/orders/' . $paypalOrderId . '/capture',
+                $accessToken,
+                []
+            );
+        } catch (\RuntimeException $e) {
+            $this->jsonError(502, 'Payment service unavailable. Please try again later.');
+        }
 
         if ($response['httpCode'] !== 201) {
             $this->jsonError(502, 'Failed to capture PayPal payment.');
@@ -251,7 +259,7 @@ class PayPalController
         curl_close($ch);
 
         if ($body === false) {
-            return ['httpCode' => 0, 'body' => [], 'curlError' => $curlErr];
+            throw new \RuntimeException('cURL request to PayPal API failed: ' . $curlErr);
         }
 
         return [

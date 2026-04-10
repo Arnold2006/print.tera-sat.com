@@ -115,10 +115,10 @@ $sizes     = PRINT_SIZES;
       <script src="https://www.paypal.com/sdk/js?client-id=<?php echo htmlspecialchars(PAYPAL_CLIENT_ID, ENT_QUOTES, 'UTF-8'); ?>&currency=EUR"></script>
       <script>
         (function () {
-          var csrfToken  = <?php echo json_encode($csrfToken); ?>;
-          var createUrl  = <?php echo json_encode($appUrl . '/?page=paypal&action=create-order'); ?>;
+          var csrfToken = <?php echo json_encode($csrfToken); ?>;
+          var createUrl = <?php echo json_encode($appUrl . '/?page=paypal&action=create-order'); ?>;
           var captureUrl = <?php echo json_encode($appUrl . '/?page=paypal&action=capture-order'); ?>;
-          var errorEl    = document.getElementById('paypal-error');
+          var errorEl = document.getElementById('paypal-error');
 
           function showError(msg) {
             errorEl.textContent = msg;
