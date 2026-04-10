@@ -64,7 +64,7 @@ $sizes     = PRINT_SIZES;
       <div class="space-y-2 p-4 bg-indigo-50 rounded-xl mb-6">
         <div class="flex items-center justify-between text-sm text-gray-600">
           <span>Prints subtotal</span>
-          <span class="font-semibold">&euro;<?php echo number_format($data['grand_total'] - ($data['shipping_cost'] ?? 0), 2); ?></span>
+          <span class="font-semibold">&euro;<?php echo number_format($data['subtotal'] ?? 0, 2); ?></span>
         </div>
         <div class="flex items-center justify-between text-sm text-gray-600">
           <span>Shipping</span>

@@ -78,15 +78,16 @@ class OrderController
             exit;
         }
 
-        $grandTotal = round((float) array_sum(array_column($items, 'total_price')), 2);
+        $subtotal = round((float) array_sum(array_column($items, 'total_price')), 2);
         $shippingCost = SHIPPING_COST;
-        $grandTotal = round($grandTotal + $shippingCost, 2);
+        $grandTotal = round($subtotal + $shippingCost, 2);
 
         $_SESSION['order_data'] = [
             'customer_name'    => $name,
             'customer_email'   => $email,
             'customer_address' => $address,
             'items'            => $items,
+            'subtotal'         => $subtotal,
             'shipping_cost'    => $shippingCost,
             'grand_total'      => $grandTotal,
         ];
