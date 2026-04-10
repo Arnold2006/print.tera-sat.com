@@ -1,6 +1,9 @@
 'use strict';
 
 // Price configuration – always sourced from the PHP inline script in order/form.php (which reads .env)
+if (!window.PRINT_SIZES) {
+  console.warn('PRINT_SIZES is not defined. Prices will not be calculated correctly. Ensure order/form.php is loaded.');
+}
 const PRICES = window.PRINT_SIZES || {};
 const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
 const ALLOWED_TYPES  = ['image/jpeg', 'image/png', 'image/webp'];
