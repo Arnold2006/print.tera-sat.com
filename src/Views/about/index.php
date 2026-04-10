@@ -17,7 +17,7 @@ $appUrl = APP_URL;
       <!-- Printer image -->
       <div class="md:w-1/2 flex-shrink-0">
         <img
-          src="https://github.com/user-attachments/assets/051611bd-4f13-4e81-b97a-3f8c9a71f567"
+          src="https://github.com/user-attachments/assets/c93ac505-1ceb-4833-be85-eccdfdb83392"
           alt="Canon imagePROGRAF GP2600 large-format printer"
           class="rounded-2xl shadow-lg w-full object-cover"
         >
