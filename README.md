@@ -193,3 +193,28 @@ For production, configure a [PayPal Webhook](https://developer.paypal.com/docs/a
 - Session cookies use `HttpOnly`, `SameSite=Lax`, and `Secure` (when HTTPS)
 - Admin sessions use `session_regenerate_id()` on login
 - Directory listing is disabled via `Options -Indexes`
+
+## Automated Data Purge (Privacy Policy Compliance)
+
+Per the Privacy Policy, uploaded photos and associated personal data are automatically deleted within 30 days of order completion. This is handled by `cleanup.php`.
+
+### What it does
+
+For every order whose status is `completed` and whose completion date is more than 30 days ago:
+
+1. Deletes the image file from `storage/permanent/`
+2. Replaces the customer name, email, address, and filenames with `[deleted]` in the database
+3. Stamps the `purged_at` timestamp on the order row
+
+### Setting up the cron job
+
+Run the script daily as the web-server user (replace `www` with `www-data`, `apache`, etc. as appropriate):
+
+```cron
+# Debian/Ubuntu (www-data), RHEL/AlmaLinux (apache), FreeBSD (www)
+0 3 * * * www-data php /var/www/print.tera-sat.com/cleanup.php >> /var/log/printservice-cleanup.log 2>&1
+```
+
+Add this line to `/etc/cron.d/printservice` (or the system crontab).
+
+The script exits with code `0` on success and `1` if any order failed to purge (errors are also written to the log).

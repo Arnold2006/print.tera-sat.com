@@ -15,6 +15,8 @@ CREATE TABLE IF NOT EXISTS `orders` (
     `customer_email`      VARCHAR(100) NOT NULL,
     `customer_address`    TEXT         NOT NULL,
     `status`              ENUM('pending','processing','completed') DEFAULT 'pending',
+    `completed_at`        TIMESTAMP    NULL DEFAULT NULL,
+    `purged_at`           TIMESTAMP    NULL DEFAULT NULL,
     `created_at`          TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
