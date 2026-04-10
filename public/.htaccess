@@ -1,25 +1,6 @@
 Options -Indexes
 RewriteEngine On
 
-# Block direct access to .env files
-<FilesMatch "^\.env(\..*)?$">
-    Require all denied
-</FilesMatch>
-
-# Redirect HTTP to HTTPS (skip for localhost / 127.0.0.1 in development,
-# and skip when a reverse proxy already handled TLS and set X-Forwarded-Proto: https).
-#
-# IMPORTANT: your reverse proxy MUST strip any client-supplied X-Forwarded-Proto
-# header and set its own before forwarding to this server.  Without that, a
-# malicious client could send X-Forwarded-Proto: https directly and bypass this
-# redirect.  Example Nginx directive: proxy_set_header X-Forwarded-Proto $scheme;
-# combined with clearing the header from untrusted sources.
-RewriteCond %{HTTPS} off
-RewriteCond %{HTTP:X-Forwarded-Proto} !^https$ [NC]
-RewriteCond %{HTTP_HOST} !^localhost(:[0-9]+)?$ [NC]
-RewriteCond %{HTTP_HOST} !^127\.0\.0\.1(:[0-9]+)?$ [NC]
-RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
-
 # Serve existing files/dirs directly
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
@@ -29,12 +10,8 @@ RewriteRule ^(.*)$ index.php?page=$1 [QSA,L]
 
 # Security headers
 <IfModule mod_headers.c>
-    Header always set X-Content-Type-Options "nosniff"
-    Header always set X-Frame-Options "SAMEORIGIN"
-    # X-XSS-Protection is disabled (set to 0) because it is deprecated and removed from
-    # modern browsers. It could cause security issues in some older browsers when set to
-    # "1; mode=block". XSS protection is instead provided by the Content-Security-Policy header.
-    Header always set X-XSS-Protection "0"
+    Header always set X-Content-Type-Options nosniff
+    Header always set X-Frame-Options SAMEORIGIN
+    Header always set X-XSS-Protection "1; mode=block"
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
-    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(self 'https://www.paypal.com' 'https://www.sandbox.paypal.com')"
 </IfModule>

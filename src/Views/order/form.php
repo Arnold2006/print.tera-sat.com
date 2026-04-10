@@ -8,6 +8,12 @@ $sizes       = PRINT_SIZES;
 $savedData   = $_SESSION['order_data'] ?? [];
 $savedItems  = $savedData['items'] ?? [];
 ?>
+<style>
+  .size-label:has(.size-radio:checked) {
+    border-color: #6366f1;
+    background-color: #eef2ff;
+  }
+</style>
 <section class="py-16">
   <div class="max-w-3xl mx-auto px-4 sm:px-6">
     <!-- Progress steps -->
@@ -147,11 +153,12 @@ $savedItems  = $savedData['items'] ?? [];
       </button>
     </form>
 
-    <!-- Price data for JS – no inline script needed -->
-    <div id="print-sizes-data" class="hidden"
-         data-prices="<?php echo htmlspecialchars(
-             json_encode(array_map(fn($v) => $v['price'], PRINT_SIZES), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR),
-             ENT_QUOTES, 'UTF-8'
-         ); ?>"></div>
+    <!-- Price config for JS -->
+    <script>
+      window.PRINT_SIZES = <?php echo json_encode(
+          array_map(fn($v) => $v['price'], PRINT_SIZES),
+          JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR
+      ); ?>;
+    </script>
   </div>
 </section>
