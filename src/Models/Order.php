@@ -69,8 +69,61 @@ class Order
         if (!in_array($status, $allowed, true)) {
             return false;
         }
-        $stmt = $this->db->prepare('UPDATE orders SET status = :status WHERE id = :id');
+        if ($status === 'completed') {
+            $stmt = $this->db->prepare(
+                'UPDATE orders SET status = :status, completed_at = NOW() WHERE id = :id'
+            );
+        } else {
+            // Reset completed_at so the 30-day purge clock restarts if the order
+            // is re-completed later. purged_at is intentionally left untouched:
+            // once an order has been purged the personal data and image are
+            // already deleted and cannot be restored regardless of status.
+            $stmt = $this->db->prepare(
+                'UPDATE orders SET status = :status, completed_at = NULL WHERE id = :id'
+            );
+        }
         return $stmt->execute([':status' => $status, ':id' => $id]);
+    }
+
+    /**
+     * Returns orders that are completed, have not yet been purged, and whose
+     * completion (or creation, for legacy rows) was more than 30 days ago.
+     */
+    public function getOrdersDueForPurge(): array
+    {
+        $sql = 'SELECT * FROM orders
+                WHERE status    = \'completed\'
+                  AND purged_at IS NULL
+                  AND COALESCE(completed_at, created_at) <= NOW() - INTERVAL 30 DAY';
+        $stmt = $this->db->query($sql);
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Deletes the order image file and replaces all personal-data fields with
+     * the placeholder \'[deleted]\', then stamps purged_at.
+     */
+    public function purgeOrder(int $id, string $filename): bool
+    {
+        // Delete the image file if it still exists
+        if ($filename !== '' && $filename !== '[deleted]') {
+            $filePath = PERMANENT_PATH . $filename;
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
+        }
+
+        $stmt = $this->db->prepare(
+            'UPDATE orders
+             SET filename          = \'[deleted]\',
+                 original_filename = \'[deleted]\',
+                 customer_name     = \'[deleted]\',
+                 customer_email    = \'[deleted]\',
+                 customer_address  = \'[deleted]\',
+                 purged_at         = NOW()
+             WHERE id = :id'
+        );
+        return $stmt->execute([':id' => $id]);
     }
 
     private function generateOrderNumber(): string

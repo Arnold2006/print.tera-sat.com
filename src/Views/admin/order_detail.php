@@ -9,9 +9,10 @@ $statusColors = [
     'completed'  => 'bg-green-100 text-green-800',
 ];
 
-// Check permanent first, then uploads
-$imgDir = file_exists(PERMANENT_PATH . $order['filename']) ? 'permanent' : 'uploads';
-$previewUrl = $appUrl . '/?page=image&file=' . urlencode($order['filename']) . '&dir=' . $imgDir;
+$isPurged   = !empty($order['purged_at']);
+$hasImage   = !$isPurged && !empty($order['filename']) && $order['filename'] !== '[deleted]';
+$imgDir     = ($hasImage && file_exists(PERMANENT_PATH . $order['filename'])) ? 'permanent' : 'uploads';
+$previewUrl = $hasImage ? ($appUrl . '/?page=image&file=' . urlencode($order['filename']) . '&dir=' . $imgDir) : '';
 ?>
 <section class="py-10">
   <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -26,12 +27,28 @@ $previewUrl = $appUrl . '/?page=image&file=' . urlencode($order['filename']) . '
       <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold <?php echo htmlspecialchars($statusColors[$order['status']] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
         <?php echo htmlspecialchars(ucfirst($order['status']), ENT_QUOTES, 'UTF-8'); ?>
       </span>
+      <?php if ($isPurged): ?>
+      <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-semibold bg-gray-100 text-gray-500">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+        </svg>
+        Data Purged
+      </span>
+      <?php endif; ?>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- Image -->
       <div class="lg:col-span-1">
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 text-center">
+          <?php if ($isPurged): ?>
+          <div class="flex flex-col items-center justify-center h-40 mb-4 rounded-xl bg-gray-50 border border-dashed border-gray-200">
+            <svg class="w-10 h-10 text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+            <p class="text-xs text-gray-400">Image deleted per privacy policy</p>
+          </div>
+          <?php else: ?>
           <img src="<?php echo htmlspecialchars($previewUrl, ENT_QUOTES, 'UTF-8'); ?>"
                alt="Order image" class="max-w-full max-h-64 mx-auto rounded-xl object-contain mb-4 shadow-md">
           <p class="text-xs text-gray-400 truncate mb-4">
@@ -44,6 +61,7 @@ $previewUrl = $appUrl . '/?page=image&file=' . urlencode($order['filename']) . '
             </svg>
             Download Image
           </a>
+          <?php endif; ?>
         </div>
       </div>
 
@@ -67,6 +85,12 @@ $previewUrl = $appUrl . '/?page=image&file=' . urlencode($order['filename']) . '
               <dt class="text-gray-500">Date</dt>
               <dd class="font-medium text-gray-900 mt-1"><?php echo htmlspecialchars(date('d M Y, H:i', strtotime($order['created_at'])), ENT_QUOTES, 'UTF-8'); ?></dd>
             </div>
+            <?php if ($isPurged): ?>
+            <div>
+              <dt class="text-gray-500">Purged On</dt>
+              <dd class="font-medium text-gray-500 mt-1"><?php echo htmlspecialchars(date('d M Y, H:i', strtotime($order['purged_at'])), ENT_QUOTES, 'UTF-8'); ?></dd>
+            </div>
+            <?php endif; ?>
             <div>
               <dt class="text-gray-500">Print Size</dt>
               <dd class="font-medium text-gray-900 mt-1"><?php echo htmlspecialchars($sizeLabel, ENT_QUOTES, 'UTF-8'); ?></dd>

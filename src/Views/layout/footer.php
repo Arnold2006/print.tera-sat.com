@@ -50,13 +50,13 @@
         <p>We implement appropriate technical and organisational measures to protect your personal information against unauthorised access, alteration, disclosure, or destruction. All data is transmitted over encrypted HTTPS connections.</p>
 
         <h3 class="font-semibold text-gray-800">6. Your Rights</h3>
-        <p>You have the right to access, correct, or delete the personal information we hold about you. To exercise these rights, please contact us at <a href="mailto:privacy@printservice.com" class="text-indigo-600 hover:underline">privacy@printservice.com</a>.</p>
+        <p>You have the right to access, correct, or delete the personal information we hold about you. To exercise these rights, please contact us at <a href="mailto:print@tera-sat.com" class="text-indigo-600 hover:underline">print@tera-sat.com</a>.</p>
 
         <h3 class="font-semibold text-gray-800">7. Changes to This Policy</h3>
         <p>We may update this Privacy Policy from time to time. We will notify you of any significant changes by posting the new policy on this page with an updated date.</p>
 
         <h3 class="font-semibold text-gray-800">8. Contact Us</h3>
-        <p>If you have any questions about this Privacy Policy, please contact us at <a href="mailto:privacy@printservice.com" class="text-indigo-600 hover:underline">privacy@printservice.com</a>.</p>
+        <p>If you have any questions about this Privacy Policy, please contact us at <a href="mailto:print@tera-sat.com" class="text-indigo-600 hover:underline">print@tera-sat.com</a>.</p>
       </div>
       <div class="px-6 py-4 border-t border-gray-200 text-right">
         <button type="button" id="close-privacy-modal-btn" class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition">Close</button>
@@ -109,7 +109,7 @@
         <p>We reserve the right to update these Terms of Service at any time. Continued use of the service following notification of changes constitutes your acceptance of the updated terms.</p>
 
         <h3 class="font-semibold text-gray-800">10. Contact Us</h3>
-        <p>If you have any questions about these Terms of Service, please contact us at <a href="mailto:support@printservice.com" class="text-indigo-600 hover:underline">support@printservice.com</a>.</p>
+        <p>If you have any questions about these Terms of Service, please contact us at <a href="mailto:print@tera-sat.com" class="text-indigo-600 hover:underline">print@tera-sat.com</a>.</p>
       </div>
       <div class="px-6 py-4 border-t border-gray-200 text-right">
         <button type="button" id="close-tos-modal-btn" class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition">Close</button>
