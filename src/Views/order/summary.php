@@ -122,63 +122,13 @@ $sizes     = PRINT_SIZES;
       </div>
 
       <?php if (PAYPAL_CLIENT_ID !== ''): ?>
+      <!-- PayPal SDK – must load before app.js so window.paypal is available -->
       <script src="https://www.paypal.com/sdk/js?client-id=<?php echo htmlspecialchars(PAYPAL_CLIENT_ID, ENT_QUOTES, 'UTF-8'); ?>&currency=EUR"></script>
-      <script>
-        (function () {
-          var csrfToken = <?php echo json_encode($csrfToken); ?>;
-          var createUrl = <?php echo json_encode($appUrl . '/?page=paypal&action=create-order'); ?>;
-          var captureUrl = <?php echo json_encode($appUrl . '/?page=paypal&action=capture-order'); ?>;
-          var errorEl = document.getElementById('paypal-error');
-
-          function showError(msg) {
-            errorEl.textContent = msg;
-            errorEl.classList.remove('hidden');
-          }
-
-          paypal.Buttons({
-            createOrder: function () {
-              errorEl.classList.add('hidden');
-              return fetch(createUrl, {
-                method:  'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body:    'csrf_token=' + encodeURIComponent(csrfToken),
-              })
-              .then(function (res) { return res.json(); })
-              .then(function (data) {
-                if (data.error) { throw new Error(data.error); }
-                return data.id;
-              })
-              .catch(function (err) {
-                showError('Unable to start payment. Please try again or contact support.');
-                throw err;
-              });
-            },
-
-            onApprove: function (data) {
-              return fetch(captureUrl, {
-                method:  'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body:    'csrf_token=' + encodeURIComponent(csrfToken)
-                       + '&paypal_order_id=' + encodeURIComponent(data.orderID),
-              })
-              .then(function (res) { return res.json(); })
-              .then(function (result) {
-                if (result.error) { throw new Error(result.error); }
-                window.location.href = result.redirectUrl;
-              });
-            },
-
-            onCancel: function () {
-              errorEl.classList.add('hidden');
-            },
-
-            onError: function (err) {
-              showError('Payment could not be completed. Please try again or contact support.');
-              console.error('PayPal error:', err);
-            },
-          }).render('#paypal-button-container');
-        })();
-      </script>
+      <!-- PayPal init data – read by initPaypal() in app.js, no inline script needed -->
+      <div id="paypal-data" class="hidden"
+           data-csrf="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>"
+           data-create-url="<?php echo htmlspecialchars($appUrl . '/?page=paypal&action=create-order', ENT_QUOTES, 'UTF-8'); ?>"
+           data-capture-url="<?php echo htmlspecialchars($appUrl . '/?page=paypal&action=capture-order', ENT_QUOTES, 'UTF-8'); ?>"></div>
       <?php endif; ?>
     </div>
   </div>

@@ -1,23 +1,22 @@
 'use strict';
 
-// Price configuration – always sourced from the PHP inline script in order/form.php (which reads .env)
-if (!window.PRINT_SIZES) {
-  console.warn('PRINT_SIZES is not defined. Prices will not be calculated correctly. Ensure order/form.php is loaded.');
-}
-const PRICES = window.PRINT_SIZES || {};
 const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
 const ALLOWED_TYPES  = ['image/jpeg', 'image/png', 'image/webp'];
 
 // Queue of File objects selected by the user
 let uploadQueue = [];
 
-// ─── UPLOAD PAGE ────────────────────────────────────────────────
+// ─── ENTRY POINT ────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function () {
   initUpload();
   initPriceCalculator();
   initOrderForm();
+  initMobileMenu();
+  initModals();
+  initPaypal();
 });
 
+// ─── UPLOAD PAGE ────────────────────────────────────────────────
 function initUpload() {
   const dropZone  = document.getElementById('drop-zone');
   const fileInput = document.getElementById('file-input');
@@ -244,6 +243,10 @@ function initPriceCalculator() {
   const items = document.querySelectorAll('.order-item');
   if (!items.length) return;
 
+  // Price data is injected via a data attribute (no inline script needed)
+  const pricesEl = document.getElementById('print-sizes-data');
+  const PRICES = pricesEl ? JSON.parse(pricesEl.dataset.prices || '{}') : {};
+
   function getItemTotal(item) {
     const selectedSize = item.querySelector('.size-radio:checked');
     const qtyInput     = item.querySelector('.item-qty');
@@ -289,7 +292,6 @@ function initPriceCalculator() {
       });
     }
 
-    // Set correct initial totals (10x15 is pre-checked, qty=1)
     updateItemDisplay(item);
   });
 }
@@ -325,3 +327,126 @@ function initOrderForm() {
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
+
+// ─── MOBILE MENU ─────────────────────────────────────────────────
+function initMobileMenu() {
+  const btn   = document.getElementById('mobile-menu-btn');
+  const menu  = document.getElementById('mobile-menu');
+  const open  = document.getElementById('menu-icon-open');
+  const close = document.getElementById('menu-icon-close');
+  if (btn) {
+    btn.addEventListener('click', () => {
+      menu.classList.toggle('hidden');
+      open.classList.toggle('hidden');
+      close.classList.toggle('hidden');
+    });
+  }
+}
+
+// ─── MODALS ───────────────────────────────────────────────────────
+function openModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+  }
+}
+
+function closeModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
+  }
+}
+
+function initModals() {
+  const ids = ['privacy', 'tos'];
+  ids.forEach(name => {
+    const modalId  = name + '-modal';
+    const openBtn  = document.getElementById('open-' + modalId);
+    const closeBtn = document.getElementById('close-' + modalId);
+    const closeFooterBtn = document.getElementById('close-' + modalId + '-btn');
+    const backdrop = document.getElementById(modalId + '-backdrop');
+    if (openBtn)        openBtn.addEventListener('click',  () => openModal(modalId));
+    if (closeBtn)       closeBtn.addEventListener('click', () => closeModal(modalId));
+    if (closeFooterBtn) closeFooterBtn.addEventListener('click', () => closeModal(modalId));
+    if (backdrop)       backdrop.addEventListener('click', () => closeModal(modalId));
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      ids.forEach(name => {
+        const el = document.getElementById(name + '-modal');
+        if (el && !el.classList.contains('hidden')) closeModal(name + '-modal');
+      });
+    }
+  });
+}
+
+// ─── PAYPAL SMART BUTTONS ────────────────────────────────────────
+// Data for PayPal is injected via #paypal-data data attributes (no inline script needed).
+// The PayPal SDK <script> tag in order/summary.php loads before app.js so
+// window.paypal is guaranteed to be available when this function runs.
+function initPaypal() {
+  const dataEl    = document.getElementById('paypal-data');
+  const container = document.getElementById('paypal-button-container');
+  if (!dataEl || !container) return;
+  if (typeof paypal === 'undefined') return;
+
+  const csrfToken  = dataEl.dataset.csrf;
+  const createUrl  = dataEl.dataset.createUrl;
+  const captureUrl = dataEl.dataset.captureUrl;
+  const errorEl    = document.getElementById('paypal-error');
+
+  function showPaypalError(msg) {
+    if (errorEl) {
+      errorEl.textContent = msg;
+      errorEl.classList.remove('hidden');
+    }
+  }
+
+  paypal.Buttons({
+    createOrder: function () {
+      if (errorEl) errorEl.classList.add('hidden');
+      return fetch(createUrl, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body:    'csrf_token=' + encodeURIComponent(csrfToken),
+      })
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        if (data.error) { throw new Error(data.error); }
+        return data.id;
+      })
+      .catch(function (err) {
+        showPaypalError('Unable to start payment. Please try again or contact support.');
+        throw err;
+      });
+    },
+
+    onApprove: function (data) {
+      return fetch(captureUrl, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body:    'csrf_token=' + encodeURIComponent(csrfToken)
+               + '&paypal_order_id=' + encodeURIComponent(data.orderID),
+      })
+      .then(function (res) { return res.json(); })
+      .then(function (result) {
+        if (result.error) { throw new Error(result.error); }
+        window.location.href = result.redirectUrl;
+      });
+    },
+
+    onCancel: function () {
+      if (errorEl) errorEl.classList.add('hidden');
+    },
+
+    onError: function (err) {
+      showPaypalError('Payment could not be completed. Please try again or contact support.');
+      console.error('PayPal error:', err);
+    },
+  }).render('#paypal-button-container');
+}
+

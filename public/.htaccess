@@ -23,6 +23,9 @@ RewriteRule ^(.*)$ index.php?page=$1 [QSA,L]
 <IfModule mod_headers.c>
     Header always set X-Content-Type-Options "nosniff"
     Header always set X-Frame-Options "SAMEORIGIN"
+    # X-XSS-Protection is disabled (set to 0) because it is deprecated and removed from
+    # modern browsers. It could cause security issues in some older browsers when set to
+    # "1; mode=block". XSS protection is instead provided by the Content-Security-Policy header.
     Header always set X-XSS-Protection "0"
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
     Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(self)"

@@ -84,29 +84,24 @@ class AdminController
             if (!csrfVerify($_POST['csrf_token'] ?? '')) {
                 $error = 'Invalid security token.';
             } else {
-                // Rate limiting: max 5 failed attempts per 15 minutes
-                $attempts    = (int) ($_SESSION['login_attempts']    ?? 0);
-                $lastAttempt = (int) ($_SESSION['login_last_attempt'] ?? 0);
-                if ($lastAttempt > 0 && (time() - $lastAttempt) > 900) {
-                    $attempts = 0;
-                }
-                if ($attempts >= 5) {
-                    $error = 'Too many failed login attempts. Please try again in 15 minutes.';
+                // Rate limiting: max 5 failed attempts per 15 minutes, keyed by IP
+                $rateLimitError = $this->checkLoginRateLimit();
+                if ($rateLimitError !== null) {
+                    $error = $rateLimitError;
                 } else {
                     $username = trim($_POST['username'] ?? '');
                     $password = $_POST['password'] ?? '';
                     $adminModel = new Admin();
 
                     if ($username !== '' && $adminModel->verifyPassword($username, $password)) {
-                        unset($_SESSION['login_attempts'], $_SESSION['login_last_attempt']);
+                        $this->resetLoginRateLimit();
                         session_regenerate_id(true);
                         $_SESSION['admin_logged_in'] = true;
                         $_SESSION['admin_username']  = $username;
                         header('Location: ' . APP_URL . '/?page=admin');
                         exit;
                     }
-                    $_SESSION['login_attempts']    = $attempts + 1;
-                    $_SESSION['login_last_attempt'] = time();
+                    $this->recordFailedLogin();
                     $error = 'Invalid username or password.';
                 }
             }
@@ -234,5 +229,58 @@ class AdminController
         header('Cache-Control: private, no-cache');
         readfile($filePath);
         exit;
+    }
+
+    // -------------------------------------------------------------------------
+    // Login rate limiting – IP-based, backed by a temp file
+    // -------------------------------------------------------------------------
+
+    private function rateLimitFile(): string
+    {
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+        return sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'ps_login_' . md5($ip) . '.json';
+    }
+
+    private function readRateLimitData(): array
+    {
+        $file = $this->rateLimitFile();
+        if (!file_exists($file)) {
+            return ['count' => 0, 'last' => 0];
+        }
+        $data = json_decode((string) file_get_contents($file), true);
+        return is_array($data) ? $data : ['count' => 0, 'last' => 0];
+    }
+
+    private function checkLoginRateLimit(): ?string
+    {
+        $data = $this->readRateLimitData();
+        // Reset counter if the 15-minute window has expired
+        if ((int) $data['last'] > 0 && (time() - (int) $data['last']) > 900) {
+            return null;
+        }
+        if ((int) $data['count'] >= 5) {
+            return 'Too many failed login attempts. Please try again in 15 minutes.';
+        }
+        return null;
+    }
+
+    private function recordFailedLogin(): void
+    {
+        $data = $this->readRateLimitData();
+        // Reset counter if the window has expired
+        if ((int) $data['last'] > 0 && (time() - (int) $data['last']) > 900) {
+            $data = ['count' => 0, 'last' => 0];
+        }
+        $data['count'] = (int) $data['count'] + 1;
+        $data['last']  = time();
+        file_put_contents($this->rateLimitFile(), json_encode($data), LOCK_EX);
+    }
+
+    private function resetLoginRateLimit(): void
+    {
+        $file = $this->rateLimitFile();
+        if (file_exists($file)) {
+            unlink($file);
+        }
     }
 }
