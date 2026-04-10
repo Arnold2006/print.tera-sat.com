@@ -168,8 +168,9 @@ class OrderController
             header('Location: ' . APP_URL . '/');
             exit;
         }
-        $orderNumber = $_SESSION['success_order_number'];
-        unset($_SESSION['success_order_number']);
+        $orderNumber         = $_SESSION['success_order_number'];
+        $paypalTransactionId = $_SESSION['success_paypal_transaction_id'] ?? '';
+        unset($_SESSION['success_order_number'], $_SESSION['success_paypal_transaction_id']);
         require_once __DIR__ . '/../Views/layout/header.php';
         require_once __DIR__ . '/../Views/order/success.php';
         require_once __DIR__ . '/../Views/layout/footer.php';

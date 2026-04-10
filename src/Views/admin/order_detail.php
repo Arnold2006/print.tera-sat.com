@@ -101,6 +101,30 @@ $previewUrl = $appUrl . '/?page=image&file=' . urlencode($order['filename']) . '
           </dl>
         </div>
 
+        <!-- Payment Info -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <h2 class="font-semibold text-gray-700 mb-4">Payment</h2>
+          <dl class="grid grid-cols-1 gap-3 text-sm">
+            <div class="flex gap-3 items-center">
+              <dt class="w-36 text-gray-500 flex-shrink-0">Payment Status</dt>
+              <?php if (!empty($order['paypal_transaction_id'])): ?>
+              <dd class="inline-flex items-center gap-1 text-green-600 font-semibold">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                Payment Accepted
+              </dd>
+              <?php else: ?>
+              <dd class="text-gray-400 font-medium">No PayPal payment recorded</dd>
+              <?php endif; ?>
+            </div>
+            <?php if (!empty($order['paypal_transaction_id'])): ?>
+            <div class="flex gap-3">
+              <dt class="w-36 text-gray-500 flex-shrink-0">PayPal Transaction ID</dt>
+              <dd class="font-mono font-semibold text-gray-800"><?php echo htmlspecialchars($order['paypal_transaction_id'], ENT_QUOTES, 'UTF-8'); ?></dd>
+            </div>
+            <?php endif; ?>
+          </dl>
+        </div>
+
         <!-- Status Update -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
           <h2 class="font-semibold text-gray-700 mb-4">Update Status</h2>

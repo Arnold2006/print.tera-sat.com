@@ -138,6 +138,8 @@ class PayPalController
             $this->jsonError(400, 'Payment amount mismatch. Please contact support.');
         }
 
+        $paypalCaptureId = $capture['purchase_units'][0]['payments']['captures'][0]['id'] ?? '';
+
         // Place the order (same logic as OrderController::place)
         $orderData = $_SESSION['order_data'];
         $items     = $orderData['items'] ?? [];
@@ -168,6 +170,7 @@ class PayPalController
 
             $model->createOrder([
                 'group_order_number' => $groupOrderNumber,
+                'paypal_transaction_id' => $paypalCaptureId,
                 'filename'           => $item['filename'],
                 'original_filename'  => $item['original_filename'],
                 'size'               => $item['size'],
@@ -181,6 +184,7 @@ class PayPalController
 
         unset($_SESSION['upload_files'], $_SESSION['order_data'], $_SESSION['order_error']);
         $_SESSION['success_order_number'] = $groupOrderNumber;
+        $_SESSION['success_paypal_transaction_id'] = $paypalCaptureId;
 
         echo json_encode([
             'success'     => true,

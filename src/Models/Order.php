@@ -18,24 +18,25 @@ class Order
     {
         $orderNumber = $this->generateOrderNumber();
         $sql = 'INSERT INTO orders
-                    (order_number, group_order_number, filename, original_filename, size, quantity, price,
+                    (order_number, group_order_number, paypal_transaction_id, filename, original_filename, size, quantity, price,
                      customer_name, customer_email, customer_address, status)
                 VALUES
-                    (:order_number, :group_order_number, :filename, :original_filename, :size, :quantity, :price,
+                    (:order_number, :group_order_number, :paypal_transaction_id, :filename, :original_filename, :size, :quantity, :price,
                      :customer_name, :customer_email, :customer_address, :status)';
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
-            ':order_number'       => $orderNumber,
-            ':group_order_number' => $data['group_order_number'] ?? null,
-            ':filename'           => $data['filename'],
-            ':original_filename'  => $data['original_filename'],
-            ':size'               => $data['size'],
-            ':quantity'           => (int) $data['quantity'],
-            ':price'              => (float) $data['price'],
-            ':customer_name'      => $data['customer_name'],
-            ':customer_email'     => $data['customer_email'],
-            ':customer_address'   => $data['customer_address'],
-            ':status'             => 'pending',
+            ':order_number'          => $orderNumber,
+            ':group_order_number'    => $data['group_order_number'] ?? null,
+            ':paypal_transaction_id' => $data['paypal_transaction_id'] ?? null,
+            ':filename'              => $data['filename'],
+            ':original_filename'     => $data['original_filename'],
+            ':size'                  => $data['size'],
+            ':quantity'              => (int) $data['quantity'],
+            ':price'                 => (float) $data['price'],
+            ':customer_name'         => $data['customer_name'],
+            ':customer_email'        => $data['customer_email'],
+            ':customer_address'      => $data['customer_address'],
+            ':status'                => 'pending',
         ]);
         return $orderNumber;
     }

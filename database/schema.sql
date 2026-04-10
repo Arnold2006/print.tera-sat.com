@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS `orders` (
     `id`                  INT AUTO_INCREMENT PRIMARY KEY,
     `order_number`        VARCHAR(20)  UNIQUE NOT NULL,
     `group_order_number`  VARCHAR(20)  NULL DEFAULT NULL,
+    `paypal_transaction_id` VARCHAR(50) NULL DEFAULT NULL,
     `filename`            VARCHAR(255) NOT NULL,
     `original_filename`   VARCHAR(255) NOT NULL,
     `size`                VARCHAR(20)  NOT NULL,
