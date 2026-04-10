@@ -126,6 +126,8 @@ switch ($page) {
             $ctrl->updateStatus();
         } elseif ($action === 'download_image') {
             $ctrl->downloadImage();
+        } elseif ($action === 'clean_orphans' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+            $ctrl->cleanOrphanedFiles();
         } else {
             $ctrl->dashboard();
         }

@@ -6,6 +6,8 @@ $statusColors = [
     'processing' => 'bg-blue-100 text-blue-800',
     'completed'  => 'bg-green-100 text-green-800',
 ];
+$flash = $_SESSION['admin_flash'] ?? null;
+unset($_SESSION['admin_flash']);
 ?>
 <section class="py-10">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -15,14 +17,43 @@ $statusColors = [
         <h1 class="text-2xl font-bold text-gray-900">Orders Dashboard</h1>
         <p class="text-gray-500 text-sm mt-1">Welcome back, <?php echo $adminUser; ?></p>
       </div>
-      <a href="<?php echo htmlspecialchars($appUrl . '/?page=admin&action=logout', ENT_QUOTES, 'UTF-8'); ?>"
-         class="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-red-600 border border-gray-300 hover:border-red-300 px-4 py-2 rounded-lg transition">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-        </svg>
-        Logout
-      </a>
+      <div class="flex flex-wrap items-center gap-3">
+        <!-- Clean orphaned files form -->
+        <form method="post" action="<?php echo htmlspecialchars($appUrl . '/?page=admin&action=clean_orphans', ENT_QUOTES, 'UTF-8'); ?>"
+              onsubmit="return confirm('Delete all uploaded files that are not referenced by any order? This cannot be undone.');">
+          <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(csrfGenerate(), ENT_QUOTES, 'UTF-8'); ?>">
+          <button type="submit"
+                  class="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-red-600 border border-gray-300 hover:border-red-300 px-4 py-2 rounded-lg transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+            Clean orphaned files
+          </button>
+        </form>
+        <a href="<?php echo htmlspecialchars($appUrl . '/?page=admin&action=logout', ENT_QUOTES, 'UTF-8'); ?>"
+           class="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-red-600 border border-gray-300 hover:border-red-300 px-4 py-2 rounded-lg transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+          </svg>
+          Logout
+        </a>
+      </div>
     </div>
+
+    <!-- Flash message -->
+    <?php if ($flash): ?>
+    <div class="mb-6 flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium
+                <?php echo $flash['type'] === 'error' ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-green-50 text-green-700 border border-green-200'; ?>">
+      <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <?php if ($flash['type'] === 'error'): ?>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+        <?php else: ?>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        <?php endif; ?>
+      </svg>
+      <?php echo htmlspecialchars($flash['message'], ENT_QUOTES, 'UTF-8'); ?>
+    </div>
+    <?php endif; ?>
 
     <!-- Stats -->
     <?php
