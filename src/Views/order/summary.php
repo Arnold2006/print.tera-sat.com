@@ -61,12 +61,22 @@ $sizes     = PRINT_SIZES;
       </div>
 
       <!-- Grand total -->
-      <div class="flex items-center justify-between p-4 bg-indigo-50 rounded-xl mb-6">
-        <span class="font-semibold text-gray-700">
-          Grand Total
-          <span class="text-xs font-normal text-gray-500 ml-1">(<?php echo count($items); ?> photo<?php echo count($items) !== 1 ? 's' : ''; ?>)</span>
-        </span>
-        <span class="text-2xl font-extrabold text-indigo-600">&euro;<?php echo number_format($data['grand_total'], 2); ?></span>
+      <div class="space-y-2 p-4 bg-indigo-50 rounded-xl mb-6">
+        <div class="flex items-center justify-between text-sm text-gray-600">
+          <span>Prints subtotal</span>
+          <span class="font-semibold">&euro;<?php echo number_format($data['subtotal'] ?? 0, 2); ?></span>
+        </div>
+        <div class="flex items-center justify-between text-sm text-gray-600">
+          <span>Shipping</span>
+          <span class="font-semibold">&euro;<?php echo number_format($data['shipping_cost'] ?? 0, 2); ?></span>
+        </div>
+        <div class="border-t border-indigo-200 pt-2 flex items-center justify-between">
+          <span class="font-semibold text-gray-700">
+            Grand Total
+            <span class="text-xs font-normal text-gray-500 ml-1">(<?php echo count($items); ?> photo<?php echo count($items) !== 1 ? 's' : ''; ?>)</span>
+          </span>
+          <span class="text-2xl font-extrabold text-indigo-600">&euro;<?php echo number_format($data['grand_total'], 2); ?></span>
+        </div>
       </div>
 
       <!-- Delivery details -->

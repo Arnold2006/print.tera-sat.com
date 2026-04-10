@@ -37,6 +37,8 @@ define('UPLOAD_MAX_SIZE', 10 * 1024 * 1024); // 10 MB
 define('ALLOWED_MIME_TYPES', ['image/jpeg', 'image/png', 'image/webp']);
 define('ALLOWED_EXTENSIONS', ['jpg', 'jpeg', 'png', 'webp']);
 
+define('SHIPPING_COST', (float) ($_ENV['SHIPPING_COST'] ?? 15.00));
+
 define('PRINT_SIZES', [
     '30x40'  => ['label' => '30x40 cm',  'price' => (float) ($_ENV['PRINT_PRICE_30x40']  ?? 14.75)],
     '50x70'  => ['label' => '50x70 cm',  'price' => (float) ($_ENV['PRINT_PRICE_50x70']  ?? 24.10)],
