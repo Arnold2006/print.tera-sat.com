@@ -17,6 +17,7 @@ require_once BASE_PATH . '/src/Controllers/UploadController.php';
 require_once BASE_PATH . '/src/Controllers/OrderController.php';
 require_once BASE_PATH . '/src/Controllers/AdminController.php';
 require_once BASE_PATH . '/src/Controllers/PayPalController.php';
+require_once BASE_PATH . '/src/Controllers/AboutController.php';
 
 // Start session
 if (session_status() === PHP_SESSION_NONE) {
@@ -90,6 +91,10 @@ switch ($page) {
     case '':
     case 'home':
         (new src\Controllers\HomeController())->index();
+        break;
+
+    case 'about':
+        (new src\Controllers\AboutController())->index();
         break;
 
     case 'upload':
