@@ -24,7 +24,8 @@ $appUrl = APP_URL;
       </div>
       <!-- Printer description -->
       <div class="md:w-1/2 bg-sky-50 rounded-2xl p-8 space-y-4 text-gray-700">
-        <p>I utilize state-of-the-art equipment to ensure exceptional print quality. My flagship printer is the <strong>Canon imagePROGRAF GP2600</strong>. Originally, I invested in this professional-grade printer to produce my own artwork with complete control over quality, color accuracy, and detail. However, its impressive capacity and performance quickly proved to exceed my personal needs. Rather than letting that potential go unused, I now offer its capabilities to others—providing the same high-end print quality I demand for my own work to fellow artists, photographers, and creators.</p>
+        <p>I utilize state-of-the-art equipment to ensure exceptional print quality. My flagship printer is the <strong>Canon imagePROGRAF GP2600</strong>.</p>
+        <p>Originally, I invested in this professional-grade printer to produce my own artwork with complete control over quality, color accuracy, and detail. However, its impressive capacity and performance quickly proved to exceed my personal needs. Rather than letting that potential go unused, I now offer its capabilities to others—providing the same high-end print quality I demand for my own work to fellow artists, photographers, and creators.</p>
       </div>
     </div>
   </div>
