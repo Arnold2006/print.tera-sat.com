@@ -31,7 +31,7 @@ $sizes  = PRINT_SIZES;
 <section class="py-20 bg-white">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
     <h2 class="text-3xl font-bold text-center text-gray-900 mb-4">Why Choose PrintService?</h2>
-    <p class="text-center text-gray-500 mb-14 max-w-xl mx-auto">We make photo printing simple, affordable and reliable.</p>
+    <p class="text-center text-gray-500 mb-14 max-w-xl mx-auto">We make photo printing simple, affordable and reliable — on our own private server, with your privacy fully protected.</p>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
       <!-- Card 1 -->
       <div class="flex flex-col items-center text-center p-8 rounded-2xl bg-indigo-50 hover:shadow-lg transition">
@@ -49,11 +49,11 @@ $sizes  = PRINT_SIZES;
         <div class="w-16 h-16 rounded-2xl bg-purple-100 flex items-center justify-center mb-6">
           <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+              d="M5 12h14M12 5l7 7-7 7"/>
           </svg>
         </div>
-        <h3 class="text-xl font-bold text-gray-900 mb-3">Easy Upload</h3>
-        <p class="text-gray-600">Drag &amp; drop your photos. JPG, PNG, WebP supported. Up to 10 MB.</p>
+        <h3 class="text-xl font-bold text-gray-900 mb-3">Your Privacy, Protected</h3>
+        <p class="text-gray-600">We run on our own private server. Your photos are <strong>never</strong> stored on cloud services controlled by big tech companies — and we never monetise your data.</p>
       </div>
       <!-- Card 3 -->
       <div class="flex flex-col items-center text-center p-8 rounded-2xl bg-pink-50 hover:shadow-lg transition">
