@@ -34,8 +34,6 @@ $appUrl = APP_URL;
            class="px-3 py-2 rounded-md text-sm font-medium <?php echo $currentPage === 'home' ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:text-indigo-600 hover:bg-gray-100'; ?> transition">Home</a>
         <a href="<?php echo htmlspecialchars($appUrl, ENT_QUOTES, 'UTF-8'); ?>/?page=upload"
            class="px-3 py-2 rounded-md text-sm font-medium <?php echo $currentPage === 'upload' ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:text-indigo-600 hover:bg-gray-100'; ?> transition">Upload</a>
-        <a href="<?php echo htmlspecialchars($appUrl, ENT_QUOTES, 'UTF-8'); ?>/?page=admin"
-           class="px-3 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-700 transition text-xs">Admin</a>
       </div>
       <!-- Mobile hamburger -->
       <div class="flex items-center sm:hidden">
@@ -55,8 +53,6 @@ $appUrl = APP_URL;
          class="block px-3 py-2 rounded-md text-base font-medium <?php echo $currentPage === 'home' ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:text-indigo-600'; ?>">Home</a>
       <a href="<?php echo htmlspecialchars($appUrl, ENT_QUOTES, 'UTF-8'); ?>/?page=upload"
          class="block px-3 py-2 rounded-md text-base font-medium <?php echo $currentPage === 'upload' ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:text-indigo-600'; ?>">Upload</a>
-      <a href="<?php echo htmlspecialchars($appUrl, ENT_QUOTES, 'UTF-8'); ?>/?page=admin"
-         class="block px-3 py-2 rounded-md text-base font-medium text-gray-500 hover:text-gray-700">Admin</a>
     </div>
   </div>
 </nav>
