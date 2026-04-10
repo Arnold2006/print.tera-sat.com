@@ -74,7 +74,16 @@ $sizes  = PRINT_SIZES;
 <section class="py-20 bg-gray-50">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
     <h2 class="text-3xl font-bold text-center text-gray-900 mb-4">Simple Pricing</h2>
-    <p class="text-center text-gray-500 mb-14 max-w-xl mx-auto">No hidden fees. Pay only for what you print.</p>
+    <p class="text-center text-gray-500 mb-4 max-w-xl mx-auto">No hidden fees. Pay only for what you print.</p>
+    <div class="flex items-center justify-center gap-2 mb-14">
+      <span class="inline-flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-800 text-sm font-medium px-4 py-2 rounded-full">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+        </svg>
+        Shipping: &euro;<?php echo number_format(SHIPPING_COST, 2); ?> per order (flat rate, any number of prints)
+      </span>
+    </div>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
       <?php
       $btnClasses = ['bg-indigo-600', 'bg-gray-900', 'bg-purple-600'];
