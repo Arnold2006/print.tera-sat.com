@@ -126,6 +126,18 @@ class Order
         return $stmt->execute([':id' => $id]);
     }
 
+    /**
+     * Returns all filenames that are currently referenced by an order
+     * (excludes the '[deleted]' placeholder used for purged orders).
+     */
+    public function getOrderedFilenames(): array
+    {
+        $stmt = $this->db->query(
+            "SELECT DISTINCT filename FROM orders WHERE filename != '' AND filename != '[deleted]'"
+        );
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
+
     private function generateOrderNumber(): string
     {
         do {

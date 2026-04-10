@@ -16,6 +16,61 @@ class AdminController
         }
     }
 
+    public function cleanOrphanedFiles(): void
+    {
+        $this->requireAuth();
+        if (!csrfVerify($_POST['csrf_token'] ?? '')) {
+            header('Location: ' . APP_URL . '/?page=admin');
+            exit;
+        }
+
+        $orderModel      = new Order();
+        $orderedFilenames = $orderModel->getOrderedFilenames();
+
+        $deleted = 0;
+        $errors  = 0;
+
+        foreach ([UPLOADS_PATH, PERMANENT_PATH] as $dir) {
+            if (!is_dir($dir)) {
+                continue;
+            }
+            $files = scandir($dir);
+            if ($files === false) {
+                continue;
+            }
+            foreach ($files as $file) {
+                if ($file === '.' || $file === '..') {
+                    continue;
+                }
+                if (!preg_match('/^[a-f0-9]{32}\.(jpg|jpeg|png|webp)$/i', $file)) {
+                    continue;
+                }
+                if (!in_array($file, $orderedFilenames, true)) {
+                    $path = $dir . $file;
+                    if (file_exists($path)) {
+                        if (unlink($path)) {
+                            $deleted++;
+                        } else {
+                            $errors++;
+                        }
+                    }
+                }
+            }
+        }
+
+        $_SESSION['admin_flash'] = [
+            'type'    => $errors > 0 ? 'error' : 'success',
+            'message' => $errors > 0
+                ? "Deleted {$deleted} orphaned file(s); {$errors} could not be removed."
+                : ($deleted > 0
+                    ? "Successfully deleted {$deleted} orphaned file(s)."
+                    : 'No orphaned files found.'),
+        ];
+
+        header('Location: ' . APP_URL . '/?page=admin');
+        exit;
+    }
+
     public function login(): void
     {
         if (!empty($_SESSION['admin_logged_in'])) {
