@@ -25,7 +25,8 @@ class Database
             try {
                 self::$instance = new PDO($dsn, DB_USER, DB_PASS, $options);
             } catch (PDOException $e) {
-                throw new \RuntimeException('Database connection failed: ' . $e->getMessage());
+                error_log('Database connection failed: ' . $e->getMessage());
+                throw new \RuntimeException('Database connection failed. Please try again later.');
             }
         }
         return self::$instance;

@@ -84,18 +84,31 @@ class AdminController
             if (!csrfVerify($_POST['csrf_token'] ?? '')) {
                 $error = 'Invalid security token.';
             } else {
-                $username = trim($_POST['username'] ?? '');
-                $password = $_POST['password'] ?? '';
-                $adminModel = new Admin();
-
-                if ($username !== '' && $adminModel->verifyPassword($username, $password)) {
-                    session_regenerate_id(true);
-                    $_SESSION['admin_logged_in'] = true;
-                    $_SESSION['admin_username']  = $username;
-                    header('Location: ' . APP_URL . '/?page=admin');
-                    exit;
+                // Rate limiting: max 5 failed attempts per 15 minutes
+                $attempts    = (int) ($_SESSION['login_attempts']    ?? 0);
+                $lastAttempt = (int) ($_SESSION['login_last_attempt'] ?? 0);
+                if ($lastAttempt > 0 && (time() - $lastAttempt) > 900) {
+                    $attempts = 0;
                 }
-                $error = 'Invalid username or password.';
+                if ($attempts >= 5) {
+                    $error = 'Too many failed login attempts. Please try again in 15 minutes.';
+                } else {
+                    $username = trim($_POST['username'] ?? '');
+                    $password = $_POST['password'] ?? '';
+                    $adminModel = new Admin();
+
+                    if ($username !== '' && $adminModel->verifyPassword($username, $password)) {
+                        unset($_SESSION['login_attempts'], $_SESSION['login_last_attempt']);
+                        session_regenerate_id(true);
+                        $_SESSION['admin_logged_in'] = true;
+                        $_SESSION['admin_username']  = $username;
+                        header('Location: ' . APP_URL . '/?page=admin');
+                        exit;
+                    }
+                    $_SESSION['login_attempts']    = $attempts + 1;
+                    $_SESSION['login_last_attempt'] = time();
+                    $error = 'Invalid username or password.';
+                }
             }
         }
 
@@ -107,6 +120,19 @@ class AdminController
 
     public function logout(): void
     {
+        $_SESSION = [];
+        if (ini_get('session.use_cookies')) {
+            $params = session_get_cookie_params();
+            setcookie(
+                session_name(),
+                '',
+                time() - 42000,
+                $params['path'],
+                $params['domain'],
+                $params['secure'],
+                $params['httponly']
+            );
+        }
         session_destroy();
         header('Location: ' . APP_URL . '/?page=admin&action=login');
         exit;
