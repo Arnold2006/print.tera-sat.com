@@ -53,9 +53,10 @@ $savedItems  = $savedData['items'] ?? [];
         <?php
           $previewUrl   = $appUrl . '/?page=image&file=' . urlencode($file['filename']) . '&dir=uploads';
           $savedItem    = $savedItems[$i] ?? [];
-          $savedSize    = $savedItem['size']     ?? '10x15';
+          $defaultSize  = array_key_first(PRINT_SIZES);
+          $savedSize    = (isset($savedItem['size']) && array_key_exists($savedItem['size'], PRINT_SIZES)) ? $savedItem['size'] : $defaultSize;
           $savedQty     = (int) ($savedItem['quantity'] ?? 1);
-          $defaultPrice = PRINT_SIZES[$savedSize]['price'] ?? 2.99;
+          $defaultPrice = PRINT_SIZES[$savedSize]['price'];
         ?>
         <div class="order-item bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
           <div class="flex gap-4">
@@ -106,11 +107,12 @@ $savedItems  = $savedData['items'] ?? [];
       <div class="bg-indigo-50 rounded-2xl p-4 mb-6 flex items-center justify-between">
         <span class="font-semibold text-gray-700">Grand Total</span>
         <?php
-          $defaultSize  = '10x15';
+          $defaultSize  = array_key_first(PRINT_SIZES);
           $initialTotal = 0;
           foreach (array_keys($files) as $idx) {
-              $size          = $savedItems[$idx]['size'] ?? $defaultSize;
-              $pricePerUnit  = PRINT_SIZES[$size]['price'] ?? PRINT_SIZES[$defaultSize]['price'];
+              $savedSz       = $savedItems[$idx]['size'] ?? null;
+              $size          = ($savedSz !== null && array_key_exists($savedSz, PRINT_SIZES)) ? $savedSz : $defaultSize;
+              $pricePerUnit  = PRINT_SIZES[$size]['price'];
               $qty           = (int) ($savedItems[$idx]['quantity'] ?? 1);
               $initialTotal += $pricePerUnit * $qty;
           }
