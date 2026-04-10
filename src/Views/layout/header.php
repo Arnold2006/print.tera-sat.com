@@ -32,6 +32,8 @@ $appUrl = APP_URL;
       <div class="hidden sm:flex sm:items-center sm:gap-4">
         <a href="<?php echo htmlspecialchars($appUrl, ENT_QUOTES, 'UTF-8'); ?>/"
            class="px-3 py-2 rounded-md text-sm font-medium <?php echo $currentPage === 'home' ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:text-indigo-600 hover:bg-gray-100'; ?> transition">Home</a>
+        <a href="<?php echo htmlspecialchars($appUrl, ENT_QUOTES, 'UTF-8'); ?>/?page=about"
+           class="px-3 py-2 rounded-md text-sm font-medium <?php echo $currentPage === 'about' ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:text-indigo-600 hover:bg-gray-100'; ?> transition">About</a>
         <a href="<?php echo htmlspecialchars($appUrl, ENT_QUOTES, 'UTF-8'); ?>/?page=upload"
            class="px-3 py-2 rounded-md text-sm font-medium <?php echo $currentPage === 'upload' ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:text-indigo-600 hover:bg-gray-100'; ?> transition">Upload</a>
       </div>
@@ -51,6 +53,8 @@ $appUrl = APP_URL;
     <div class="px-4 pt-2 pb-3 space-y-1">
       <a href="<?php echo htmlspecialchars($appUrl, ENT_QUOTES, 'UTF-8'); ?>/"
          class="block px-3 py-2 rounded-md text-base font-medium <?php echo $currentPage === 'home' ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:text-indigo-600'; ?>">Home</a>
+      <a href="<?php echo htmlspecialchars($appUrl, ENT_QUOTES, 'UTF-8'); ?>/?page=about"
+         class="block px-3 py-2 rounded-md text-base font-medium <?php echo $currentPage === 'about' ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:text-indigo-600'; ?>">About</a>
       <a href="<?php echo htmlspecialchars($appUrl, ENT_QUOTES, 'UTF-8'); ?>/?page=upload"
          class="block px-3 py-2 rounded-md text-base font-medium <?php echo $currentPage === 'upload' ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:text-indigo-600'; ?>">Upload</a>
     </div>
