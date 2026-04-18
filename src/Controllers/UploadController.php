@@ -105,7 +105,7 @@ class UploadController
             }
             $_SESSION['upload_files'][] = [
                 'filename'          => $newName,
-                'original_filename' => htmlspecialchars($file['name'], ENT_QUOTES, 'UTF-8'),
+                'original_filename' => $file['name'],
             ];
 
             ob_end_clean();

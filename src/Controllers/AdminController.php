@@ -8,12 +8,41 @@ use src\Models\Order;
 
 class AdminController
 {
+    private const LOGIN_MAX_ATTEMPTS = 5;
+    private const LOGIN_LOCKOUT_SECONDS = 900; // 15 minutes
+
     private function requireAuth(): void
     {
         if (empty($_SESSION['admin_logged_in'])) {
             header('Location: ' . APP_URL . '/?page=admin&action=login');
             exit;
         }
+    }
+
+    private function isLockedOut(): bool
+    {
+        $attempts    = (int) ($_SESSION['admin_login_attempts'] ?? 0);
+        $lastAttempt = (int) ($_SESSION['admin_login_last_attempt'] ?? 0);
+
+        if ($attempts >= self::LOGIN_MAX_ATTEMPTS) {
+            if ((time() - $lastAttempt) < self::LOGIN_LOCKOUT_SECONDS) {
+                return true;
+            }
+            // Lockout window has expired — reset counters
+            $this->clearLoginAttempts();
+        }
+        return false;
+    }
+
+    private function recordFailedAttempt(): void
+    {
+        $_SESSION['admin_login_attempts']     = (int) ($_SESSION['admin_login_attempts'] ?? 0) + 1;
+        $_SESSION['admin_login_last_attempt'] = time();
+    }
+
+    private function clearLoginAttempts(): void
+    {
+        unset($_SESSION['admin_login_attempts'], $_SESSION['admin_login_last_attempt']);
     }
 
     public function cleanOrphanedFiles(): void
@@ -83,18 +112,24 @@ class AdminController
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!csrfVerify($_POST['csrf_token'] ?? '')) {
                 $error = 'Invalid security token.';
+            } elseif ($this->isLockedOut()) {
+                $remaining = self::LOGIN_LOCKOUT_SECONDS - (time() - (int) ($_SESSION['admin_login_last_attempt'] ?? 0));
+                $minutes   = (int) ceil($remaining / 60);
+                $error     = "Too many failed login attempts. Please try again in {$minutes} minute(s).";
             } else {
-                $username = trim($_POST['username'] ?? '');
-                $password = $_POST['password'] ?? '';
+                $username   = trim($_POST['username'] ?? '');
+                $password   = $_POST['password'] ?? '';
                 $adminModel = new Admin();
 
                 if ($username !== '' && $adminModel->verifyPassword($username, $password)) {
+                    $this->clearLoginAttempts();
                     session_regenerate_id(true);
                     $_SESSION['admin_logged_in'] = true;
                     $_SESSION['admin_username']  = $username;
                     header('Location: ' . APP_URL . '/?page=admin');
                     exit;
                 }
+                $this->recordFailedAttempt();
                 $error = 'Invalid username or password.';
             }
         }
@@ -107,7 +142,29 @@ class AdminController
 
     public function logout(): void
     {
+        // Logout must be a POST request with a valid CSRF token to prevent
+        // CSRF-forced logout attacks.
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !csrfVerify($_POST['csrf_token'] ?? '')) {
+            header('Location: ' . APP_URL . '/?page=admin');
+            exit;
+        }
+
+        // Properly invalidate the session: clear data, expire cookie, destroy.
+        $_SESSION = [];
+        if (ini_get('session.use_cookies')) {
+            $p = session_get_cookie_params();
+            setcookie(
+                session_name(),
+                '',
+                time() - 42000,
+                $p['path'],
+                $p['domain'],
+                $p['secure'],
+                $p['httponly']
+            );
+        }
         session_destroy();
+
         header('Location: ' . APP_URL . '/?page=admin&action=login');
         exit;
     }
@@ -116,7 +173,12 @@ class AdminController
     {
         $this->requireAuth();
         $orderModel = new Order();
-        $orders     = $orderModel->getAllOrders();
+        $page       = max(1, (int) ($_GET['p'] ?? 1));
+        $perPage    = 50;
+        $orders     = $orderModel->getOrdersPaginated($page, $perPage);
+        $totalOrders = $orderModel->countOrders();
+        $totalPages  = (int) ceil($totalOrders / $perPage);
+        csrfGenerate();
         require_once __DIR__ . '/../Views/layout/header.php';
         require_once __DIR__ . '/../Views/admin/dashboard.php';
         require_once __DIR__ . '/../Views/layout/footer.php';

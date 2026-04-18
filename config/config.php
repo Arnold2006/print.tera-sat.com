@@ -26,12 +26,21 @@ if (file_exists($envFile)) {
 define('APP_URL',    $_ENV['APP_URL']    ?? 'https://print.tera-sat.com');
 define('DB_HOST',    $_ENV['DB_HOST']    ?? 'localhost');
 define('DB_NAME',    $_ENV['DB_NAME']    ?? 'print_service');
-define('DB_USER',    $_ENV['DB_USER']    ?? 'root');
-define('DB_PASS',    $_ENV['DB_PASS']    ?? '');
 
-// Default hash for 'admin123' - override via .env
-define('ADMIN_PASSWORD_HASH', $_ENV['ADMIN_PASSWORD_HASH'] ?? '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi');
-define('ADMIN_USERNAME',      $_ENV['ADMIN_USERNAME']      ?? 'admin');
+if (empty($_ENV['DB_USER'])) {
+    throw new \RuntimeException('DB_USER must be set in .env — do not use default root credentials.');
+}
+define('DB_USER', $_ENV['DB_USER']);
+define('DB_PASS', $_ENV['DB_PASS'] ?? '');
+
+if (empty($_ENV['ADMIN_PASSWORD_HASH'])) {
+    throw new \RuntimeException('ADMIN_PASSWORD_HASH must be set in .env. Generate with: php -r "echo password_hash(\'your_password\', PASSWORD_BCRYPT);"');
+}
+if (empty($_ENV['ADMIN_USERNAME'])) {
+    throw new \RuntimeException('ADMIN_USERNAME must be set in .env.');
+}
+define('ADMIN_PASSWORD_HASH', $_ENV['ADMIN_PASSWORD_HASH']);
+define('ADMIN_USERNAME',      $_ENV['ADMIN_USERNAME']);
 
 define('UPLOAD_MAX_SIZE', 10 * 1024 * 1024); // 10 MB
 define('ALLOWED_MIME_TYPES', ['image/jpeg', 'image/png', 'image/webp']);
