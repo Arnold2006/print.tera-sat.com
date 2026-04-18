@@ -213,6 +213,8 @@ class PayPalController
             CURLOPT_POSTFIELDS     => 'grant_type=client_credentials',
             CURLOPT_HTTPHEADER     => ['Content-Type: application/x-www-form-urlencoded'],
             CURLOPT_TIMEOUT        => 15,
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_SSL_VERIFYHOST => 2,
         ]);
         $body     = curl_exec($ch);
         $curlErr  = $body === false ? curl_error($ch) : '';
@@ -256,6 +258,8 @@ class PayPalController
                 'Authorization: Bearer ' . $accessToken,
             ],
             CURLOPT_TIMEOUT        => 30,
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_SSL_VERIFYHOST => 2,
         ]);
         $body     = curl_exec($ch);
         $curlErr  = $body === false ? curl_error($ch) : '';

@@ -55,6 +55,24 @@ class Order
         return $stmt->fetchAll();
     }
 
+    public function getOrdersPaginated(int $page, int $perPage): array
+    {
+        $offset = ($page - 1) * $perPage;
+        $stmt   = $this->db->prepare(
+            'SELECT * FROM orders ORDER BY created_at DESC LIMIT :limit OFFSET :offset'
+        );
+        $stmt->bindValue(':limit',  $perPage, \PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset,  \PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+    public function countOrders(): int
+    {
+        $stmt = $this->db->query('SELECT COUNT(*) FROM orders');
+        return (int) $stmt->fetchColumn();
+    }
+
     public function getOrderById(int $id): ?array
     {
         $stmt = $this->db->prepare('SELECT * FROM orders WHERE id = :id LIMIT 1');
