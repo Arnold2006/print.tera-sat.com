@@ -172,10 +172,10 @@ class AdminController
     public function dashboard(): void
     {
         $this->requireAuth();
-        $orderModel = new Order();
-        $page       = max(1, (int) ($_GET['p'] ?? 1));
-        $perPage    = 50;
-        $orders     = $orderModel->getOrdersPaginated($page, $perPage);
+        $orderModel  = new Order();
+        $page        = max(1, (int) ($_GET['p'] ?? 1));
+        $perPage     = 50;
+        $orders      = $orderModel->getOrdersPaginated($page, $perPage);
         $totalOrders = $orderModel->countOrders();
         $totalPages  = (int) ceil($totalOrders / $perPage);
         csrfGenerate();

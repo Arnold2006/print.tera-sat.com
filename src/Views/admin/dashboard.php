@@ -69,9 +69,9 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
       <?php foreach ([
         ['Total Orders', $totalOrders,      'bg-indigo-50 text-indigo-700',  'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2'],
-        ['Pending (page)', $pendingOrders,  'bg-yellow-50 text-yellow-700',  'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'],
-        ['Completed (page)', $completedOrders, 'bg-green-50 text-green-700', 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'],
-        ['Revenue (page)', '&euro;' . number_format($pageRevenue, 2), 'bg-purple-50 text-purple-700', 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z'],
+        ['Pending on Page',   $pendingOrders,    'bg-yellow-50 text-yellow-700',  'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'],
+        ['Completed on Page', $completedOrders,  'bg-green-50 text-green-700',    'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'],
+        ['Revenue on Page',   '&euro;' . number_format($pageRevenue, 2), 'bg-purple-50 text-purple-700', 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z'],
       ] as [$label, $val, $cls, $icon]): ?>
       <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
         <div class="flex items-center gap-3">
@@ -154,7 +154,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
       <?php if ($totalPages > 1): ?>
       <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
         <span class="text-xs text-gray-500">
-          Showing orders <?php echo number_format(($page - 1) * 50 + 1); ?>–<?php echo number_format(min($page * 50, $totalOrders)); ?> of <?php echo number_format($totalOrders); ?>
+          Showing orders <?php echo number_format(($page - 1) * $perPage + 1); ?>–<?php echo number_format(min($page * $perPage, $totalOrders)); ?> of <?php echo number_format($totalOrders); ?>
         </span>
         <div class="flex items-center gap-2">
           <?php if ($page > 1): ?>
